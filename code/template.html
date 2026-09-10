@@ -49,6 +49,48 @@ h1{
 .chip.o{background:rgba(255,169,77,.09);border-color:rgba(255,169,77,.3);color:#ffc78f}
 .chip.g{background:rgba(45,212,167,.08);border-color:rgba(45,212,167,.28);color:#8ce8cc}
 
+/* ---------- Header 结构化：结果徽章 + 方法论流程条 ---------- */
+.headrow{display:flex;justify-content:space-between;align-items:flex-end;gap:26px;flex-wrap:wrap}
+.badge-r2{
+  background:linear-gradient(150deg,rgba(45,212,167,.16),rgba(45,212,167,.03));
+  border:1px solid rgba(45,212,167,.34);border-radius:16px;
+  padding:14px 26px 12px;text-align:center;min-width:176px;flex:none;
+  box-shadow:0 0 36px -16px rgba(45,212,167,.55);
+}
+.badge-r2 .b-l{font-size:11px;color:#8ce8cc;letter-spacing:1.2px}
+.badge-r2 .b-v{
+  font-size:35px;font-weight:700;letter-spacing:-1.2px;line-height:1.15;margin-top:2px;
+  background:linear-gradient(180deg,#ffffff,#7fe6c4);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.badge-r2 .b-s{font-size:10.5px;color:var(--sub);letter-spacing:.4px;margin-top:1px}
+
+.flow{display:flex;gap:10px;margin-top:26px;align-items:stretch;flex-wrap:wrap}
+.fstep{
+  flex:1;min-width:216px;display:flex;gap:12px;align-items:center;
+  background:linear-gradient(165deg,rgba(21,29,44,.9),rgba(13,18,28,.9));
+  border:1px solid var(--line);border-radius:13px;padding:14px 16px;
+  position:relative;overflow:hidden;
+  transition:transform .4s cubic-bezier(.2,.8,.3,1),border-color .4s,box-shadow .4s;
+}
+.fstep:hover{transform:translateY(-4px);border-color:var(--c);
+  box-shadow:0 16px 34px -20px var(--c)}
+.fstep::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,var(--c),transparent)}
+.f-ico{
+  width:37px;height:37px;border-radius:10px;display:grid;place-items:center;
+  font:700 13px/1 Consolas,Menlo,monospace;flex:none;
+}
+.f-t{min-width:0}
+.f-t b{display:block;font-size:13.5px;font-weight:650;letter-spacing:.3px}
+.f-t span{display:block;font-size:11px;color:var(--sub);line-height:1.6;margin-top:3px}
+.fs1{--c:#4d8dff} .fs2{--c:#ffa94d} .fs3{--c:#2dd4a7} .fs4{--c:#a78bfa}
+.fs1 .f-ico{background:rgba(77,141,255,.15);border:1px solid rgba(77,141,255,.36);color:#8fb8ff}
+.fs2 .f-ico{background:rgba(255,169,77,.15);border:1px solid rgba(255,169,77,.36);color:#ffc78f}
+.fs3 .f-ico{background:rgba(45,212,167,.14);border:1px solid rgba(45,212,167,.34);color:#8ce8cc}
+.fs4 .f-ico{background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.36);color:#c4b0ff}
+.f-arrow{align-self:center;color:#33415c;font-size:19px;flex:none}
+
 /* ---------- Section ---------- */
 section{margin-top:44px}
 .shead{display:flex;align-items:baseline;gap:14px;margin-bottom:20px;flex-wrap:wrap}
@@ -169,6 +211,8 @@ footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);
   .kpis,.fgrid{grid-template-columns:repeat(2,1fr)}
   .grid2,.mgrid{grid-template-columns:1fr}
   h1{font-size:29px}
+  .f-arrow{display:none}
+  .fstep{min-width:100%}
 }
 </style>
 </head>
@@ -180,20 +224,49 @@ footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);
       <span class="dot"></span>
       <span>LSTM&nbsp;+&nbsp;GARCH(1,1)&nbsp;HYBRID&nbsp;FORECASTING&nbsp;ENGINE</span>
     </div>
-    <h1>铜价智能预测决策面板</h1>
-    <p class="sub">
-      基于 <b style="color:#a9c6ff">2024 全年 366 天</b> 五大核心地区现货均价，构建
-      <b style="color:#a9c6ff">LSTM 长短期记忆网络</b>（条件均值）与
-      <b style="color:#ffc78f">GARCH(1,1) 广义自回归条件异方差模型</b>（条件方差）的混合预测框架。
-      以 <b style="color:#ff9f9f">11–12 月共 $VALDAYS 天样本外验证集</b> 检验泛化能力，
-      并外推 <b style="color:#ffc78f">2025 年 1–3 月（$FUTDAYS 天）</b> 价格路径与 95% 置信区间。
-    </p>
+
+    <div class="headrow">
+      <div>
+        <h1>铜价智能预测决策面板</h1>
+        <p class="sub">五大核心地区现货铜价 · 条件均值与条件方差联合建模 · 2025 年第一季度路径外推</p>
+      </div>
+      <div class="badge-r2">
+        <div class="b-l">五大地区平均 R²</div>
+        <div class="b-v">$AVGR2</div>
+        <div class="b-s">样本外验证 · $VALDAYS 天</div>
+      </div>
+    </div>
+
+    <div class="flow">
+      <div class="fstep fs1">
+        <div class="f-ico">01</div>
+        <div class="f-t"><b>数据预处理</b>
+          <span>2024 全年 366 天日频现货均价<br>缺失插补 · 对数平稳化 · 滑动窗口 $WIN 天</span></div>
+      </div>
+      <div class="f-arrow">→</div>
+      <div class="fstep fs2">
+        <div class="f-ico">02</div>
+        <div class="f-t"><b>LSTM 条件均值</b>
+          <span>2 层 × 64 隐藏单元 · 线性 AR 跳连<br>Adam 优化 · $EPOCHS epochs 迭代</span></div>
+      </div>
+      <div class="f-arrow">→</div>
+      <div class="fstep fs3">
+        <div class="f-ico">03</div>
+        <div class="f-t"><b>GARCH 条件方差</b>
+          <span>(1,1) 阶残差极大似然估计<br>多步波动率递推 · 95% 置信区间</span></div>
+      </div>
+      <div class="f-arrow">→</div>
+      <div class="fstep fs4">
+        <div class="f-ico">04</div>
+        <div class="f-t"><b>2025 Q1 外推</b>
+          <span>2025-01-01 → 03-31 共 $FUTDAYS 步<br>递归外推 · 置信带合成</span></div>
+      </div>
+    </div>
+
     <div class="chips">
-      <span class="chip">训练样本 $TRAINDAYS 天 · 滑动窗口 $WIN</span>
-      <span class="chip">迭代轮次 $EPOCHS epochs</span>
-      <span class="chip o">验证集 $VALDAYS 天（样本外）</span>
+      <span class="chip">训练样本 $TRAINDAYS 天</span>
+      <span class="chip o">样本外验证 $VALDAYS 天</span>
       <span class="chip o">预测期 2025-01-01 → 2025-03-31</span>
-      <span class="chip g">平均 R² = $AVGR2</span>
       <span class="chip g">生成时间 $GENTIME</span>
     </div>
   </header>

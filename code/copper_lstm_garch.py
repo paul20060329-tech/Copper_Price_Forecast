@@ -15,7 +15,7 @@
                逐步递推多步条件方差, 构造 95% 置信区间
 输出   : output/copper_dashboard.html
 """
-import os, sys, time, json, math, threading, datetime as dt
+import os, sys, time, json, math, webbrowser, subprocess, threading, datetime as dt
 
 os.environ.setdefault('KMP_DUPLICATE_LIB_OK', 'TRUE')   # 规避 Windows 下多 OpenMP 运行时冲突
 
@@ -388,28 +388,26 @@ STAGES = [
 MIN_SHOW = 10.0
 
 
-def gui_available(timeout=3.0):
-    """探测桌面会话是否可用（带超时，无显示环境下自动降级为无窗口模式）"""
-    res = {}
+def gui_available(timeout=6.0):
+    """探测桌面会话是否可用（无显示环境下自动降级为无窗口模式）
 
-    def probe():
-        try:
-            import tkinter as tk
-            r = tk.Tk()
-            r.withdraw()
-            r.update()
-            r.destroy()
-            res['ok'] = True
-        except Exception:
-            res['ok'] = False
-
-    t = threading.Thread(target=probe, daemon=True)
-    t.start()
-    t.join(timeout)
-    return bool(res.get('ok'))
+    注意：必须在**独立子进程**中探测。tkinter 非线程安全，若在主进程的子线程里
+    创建 Tcl 解释器，其残留状态会污染主进程后续的主线程 tk.Tk()，导致窗口异常。
+    """
+    code = ('import tkinter as tk\n'
+            'r = tk.Tk()\n'
+            'r.withdraw()\n'
+            'r.update()\n'
+            'r.destroy()\n')
+    try:
+        r = subprocess.run([sys.executable, '-c', code], timeout=timeout,
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return r.returncode == 0
+    except Exception:
+        return False
 
 
-def launch(state, gates):
+def launch(state, gates, max_total=900.0):
     import tkinter as tk
     from tkinter import ttk
 
@@ -418,17 +416,48 @@ def launch(state, gates):
     BG, FG = '#0b1018', '#dce7f7'
     ACC = ['#4d8dff', '#ffa94d', '#2dd4a7', '#ff5f6d']
     cur = {'win': None, 'idx': -1, 't0': 0.0}
+    t_start = time.time()
+
+    def set_alpha(w, a):
+        try:
+            w.attributes('-alpha', a)
+        except Exception:
+            return False
+        return True
+
+    def fade_in(w, a=0.0, step=0.1):
+        """线性淡入至完全不透明（必须单调递增到 1.0）"""
+        a = min(1.0, a + step)
+        if not set_alpha(w, a):
+            return
+        if a < 1.0:
+            w.after(20, lambda: fade_in(w, a))
+
+    def fade_out(w, a=1.0, step=0.16):
+        """淡出后销毁，避免窗口突然消失"""
+        a = max(0.0, a - step)
+        if not set_alpha(w, a):
+            try:
+                w.destroy()
+            except Exception:
+                pass
+            return
+        if a <= 0.0:
+            try:
+                w.destroy()
+            except Exception:
+                pass
+            return
+        w.after(16, lambda: fade_out(w, a))
 
     def make(idx):
         w = tk.Toplevel(root)
         w.overrideredirect(True)
-        w.attributes('-topmost', True)
         w.configure(bg=BG, highlightthickness=1, highlightbackground='#26334a')
         W_, H_ = 600, 216
         x = (w.winfo_screenwidth() - W_) // 2
         y = (w.winfo_screenheight() - H_) // 2
         w.geometry(f'{W_}x{H_}+{x}+{y}')
-        w.attributes('-alpha', 0.0)
         f = tk.Frame(w, bg=BG, padx=28, pady=22)
         f.pack(fill='both', expand=True)
         tk.Label(f, text='LSTM — GARCH   COPPER  PRICE  FORECAST  ENGINE',
@@ -437,10 +466,13 @@ def launch(state, gates):
                  font=('Microsoft YaHei', 14, 'bold')).pack(anchor='w', pady=(9, 3))
         tk.Label(f, text=STAGES[idx][1], bg=BG, fg='#8b9bb4',
                  font=('Microsoft YaHei', 9), wraplength=536, justify='left').pack(anchor='w')
-        st = ttk.Style(); st.theme_use('clam')
-        st.configure('P.Horizontal.TProgressbar', troughcolor='#151d2c',
-                     background=ACC[idx], borderwidth=0, thickness=9)
-        bar = ttk.Progressbar(f, style='P.Horizontal.TProgressbar', orient='horizontal',
+        # 每个阶段使用独立 style 名，避免同名的 configure 不刷新
+        st = ttk.Style()
+        st.theme_use('clam')
+        sname = f'Stage{idx}.Horizontal.TProgressbar'
+        st.configure(sname, troughcolor='#151d2c', background=ACC[idx],
+                     borderwidth=0, thickness=9)
+        bar = ttk.Progressbar(f, style=sname, orient='horizontal',
                               length=544, mode='determinate', maximum=100)
         bar.pack(anchor='w', pady=(18, 6))
         pct = tk.Label(f, text='   0.0%', bg=BG, fg=ACC[idx],
@@ -449,39 +481,57 @@ def launch(state, gates):
         msg = tk.Label(f, text='初始化 ...', bg=BG, fg='#6f809a',
                        font=('Consolas', 9), anchor='w', width=70)
         msg.pack(anchor='w', pady=(7, 0))
-        cur.update(win=w, idx=idx, t0=time.time(), bar=bar, pct=pct, msg=msg, acc=ACC[idx])
-        fade_in(w, 0.0)
 
-    def fade_in(w, a):
-        a = a * 0.72 + 0.085
-        if a >= 0.99:
-            w.attributes('-alpha', 1.0); return
-        w.attributes('-alpha', a)
-        w.after(20, lambda: fade_in(w, a))
+        w.update_idletasks()                 # 确保窗口已映射，alpha 属性才生效
+        set_alpha(w, 0.0)
+        w.attributes('-topmost', True)
+        w.lift()
+        w.focus_force()
+
+        cur.update(win=w, idx=idx, t0=time.time(), bar=bar, pct=pct, msg=msg)
+        fade_in(w)
 
     def tick():
         st = state.get('stage', 0)
-        if st >= len(STAGES):
+        # 结束或超时：收起所有窗口并退出
+        if st >= len(STAGES) or (time.time() - t_start) > max_total:
             if cur['win'] is not None:
-                cur['win'].destroy()
-            root.quit(); return
+                try:
+                    cur['win'].destroy()
+                except Exception:
+                    pass
+                cur['win'] = None
+            root.quit()
+            return
         if cur['idx'] == -1:
-            make(st); return
+            make(st)
+            root.after(50, tick)
+            return
         el = time.time() - cur['t0']
         tgt = max(0.0, min(1.0, state.get('prog', 0.0)))
         shown = min(tgt, el / MIN_SHOW, 0.995)
-        cur['bar']['value'] = shown * 100
-        cur['pct'].config(text=f'   {shown * 100:5.1f}%')
-        cur['msg'].config(text='▸ ' + str(state.get('msg', ''))[:66])
+        try:
+            cur['bar']['value'] = shown * 100
+            cur['pct'].config(text=f'   {shown * 100:5.1f}%')
+            cur['msg'].config(text='▸ ' + str(state.get('msg', ''))[:66])
+            cur['win'].attributes('-topmost', True)   # 周期性维持置顶
+        except Exception:
+            cur['win'] = None
+            cur['idx'] = -1
+            root.after(50, tick)
+            return
         if not gates[cur['idx']] and el >= MIN_SHOW:
             gates[cur['idx']] = True
         if gates[cur['idx']] and st > cur['idx']:
-            cur['win'].destroy(); cur['win'] = None; cur['idx'] = -1
+            fade_out(cur['win'])
+            cur['win'] = None
+            cur['idx'] = -1
         root.after(50, tick)
 
     root.after(60, tick)
     root.mainloop()
     try:
+        root.update()
         root.destroy()
     except Exception:
         pass
@@ -491,6 +541,7 @@ def main():
     raw_mode = '--raw' in sys.argv          # 输出真实指标，不做展示增益
     retrain = '--retrain' in sys.argv       # 忽略缓存，重新训练
     nogui = '--nogui' in sys.argv           # 跳过弹窗，直接出结果
+    noopen = '--noopen' in sys.argv         # 生成后不自动打开浏览器
     state = {'stage': 0, 'prog': 0.0, 'msg': '初始化 ...', 'result': None}
     gates = [False] * len(STAGES)
 
@@ -546,6 +597,12 @@ def main():
     print(f'  平均 R² = {out["meta"]["avgR2"]:.4f}')
     print('  面板 ->', path)
     print('=' * 74)
+    if not noopen:
+        try:
+            webbrowser.open('file:///' + os.path.abspath(path).replace('\\', '/'))
+            print('  已在默认浏览器中打开面板')
+        except Exception as e:
+            print('  [提示] 自动打开浏览器失败，请手动打开上面的路径：', e)
     return path
 
 
