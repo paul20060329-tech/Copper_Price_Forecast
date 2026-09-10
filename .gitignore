@@ -1,0 +1,19 @@
+# 生成产物（运行脚本后自动重建）
+output/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 日志与缓存
+*.log
+log/
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

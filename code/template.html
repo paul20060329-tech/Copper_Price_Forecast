@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>铜价智能预测决策面板 · LSTM-GARCH</title>
+<style>
+:root{
+  --bg:#080b12; --bg2:#0d121c; --panel:#111827; --panel2:#151d2c;
+  --line:#1f2a3d; --line2:#2a3550; --txt:#e6edf7; --sub:#8b9bb4;
+  --blue:#4d8dff; --red:#ff5f6d; --orange:#ffa94d; --green:#2dd4a7; --purple:#a78bfa;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:
+    radial-gradient(1200px 600px at 12% -8%, rgba(77,141,255,.16), transparent 60%),
+    radial-gradient(900px 500px at 88% 0%, rgba(255,169,77,.10), transparent 55%),
+    var(--bg);
+  color:var(--txt);
+  font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+  min-height:100vh; padding:0 0 70px;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1440px;margin:0 auto;padding:0 28px}
+
+/* ---------- Header ---------- */
+header{
+  padding:44px 0 26px; position:relative;
+  border-bottom:1px solid var(--line);
+}
+.brandline{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--green);
+  box-shadow:0 0 14px var(--green);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.82)}}
+.brandline span{font-size:12px;letter-spacing:2.4px;color:var(--sub);text-transform:uppercase}
+h1{
+  font-size:38px;font-weight:700;letter-spacing:-.5px;line-height:1.2;
+  background:linear-gradient(96deg,#ffffff 10%,#8fb8ff 48%,#ffc078 92%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.sub{margin-top:12px;color:var(--sub);font-size:14.5px;line-height:1.75;max-width:900px}
+.chips{display:flex;gap:9px;margin-top:20px;flex-wrap:wrap}
+.chip{
+  font-size:12px;padding:6px 13px;border-radius:999px;
+  background:rgba(77,141,255,.09);border:1px solid rgba(77,141,255,.28);
+  color:#a9c6ff;letter-spacing:.3px;
+}
+.chip.o{background:rgba(255,169,77,.09);border-color:rgba(255,169,77,.3);color:#ffc78f}
+.chip.g{background:rgba(45,212,167,.08);border-color:rgba(45,212,167,.28);color:#8ce8cc}
+
+/* ---------- Section ---------- */
+section{margin-top:44px}
+.shead{display:flex;align-items:baseline;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+.shead h2{font-size:20px;font-weight:650;letter-spacing:.2px;display:flex;align-items:center;gap:11px}
+.shead h2::before{content:"";width:4px;height:19px;border-radius:2px;
+  background:linear-gradient(180deg,var(--blue),var(--purple))}
+.shead p{color:var(--sub);font-size:13px}
+
+/* ---------- KPI ---------- */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.kpi{
+  background:linear-gradient(165deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);border-radius:16px;padding:19px 19px 15px;
+  position:relative;overflow:hidden;transition:.45s cubic-bezier(.2,.8,.3,1);
+}
+.kpi::after{content:"";position:absolute;inset:0;border-radius:16px;
+  background:linear-gradient(150deg,rgba(77,141,255,.16),transparent 45%);opacity:0;transition:.45s}
+.kpi:hover{transform:translateY(-6px);border-color:rgba(77,141,255,.5);
+  box-shadow:0 18px 40px -18px rgba(77,141,255,.5)}
+.kpi:hover::after{opacity:1}
+.kpi .rk{display:flex;justify-content:space-between;align-items:center}
+.kpi .rn{font-size:16px;font-weight:650;letter-spacing:.5px}
+.kpi .tag{font-size:10.5px;color:var(--sub);border:1px solid var(--line);
+  padding:2px 8px;border-radius:6px;background:rgba(255,255,255,.03)}
+.kpi .rv{font-size:36px;font-weight:700;margin:12px 0 2px;letter-spacing:-1px;
+  background:linear-gradient(180deg,#fff,#7fb0ff);-webkit-background-clip:text;
+  background-clip:text;-webkit-text-fill-color:transparent}
+.kpi .rl{font-size:11.5px;color:var(--sub);letter-spacing:.6px}
+.bar{height:5px;border-radius:3px;background:rgba(255,255,255,.07);margin-top:14px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:3px;width:0;
+  background:linear-gradient(90deg,var(--blue),var(--green));
+  transition:width 1.7s cubic-bezier(.2,.9,.25,1)}
+.kpi .mt{display:flex;justify-content:space-between;font-size:11px;
+  color:var(--sub);margin-top:11px}
+
+/* ---------- Panels ---------- */
+.panel{
+  background:linear-gradient(170deg,rgba(21,29,44,.92),rgba(13,18,28,.92));
+  border:1px solid var(--line);border-radius:18px;padding:22px 22px 12px;
+  backdrop-filter:blur(8px);
+}
+.grid2{display:grid;grid-template-columns:1.55fr 1fr;gap:18px}
+.chart{width:100%;height:340px}
+
+/* loss console */
+.console{
+  background:#070a10;border:1px solid var(--line);border-radius:12px;
+  padding:13px 15px;height:340px;overflow:hidden;position:relative;
+  font-family:Consolas,"SF Mono",Menlo,monospace;font-size:12px;line-height:1.85;
+}
+.console .ln{color:#5d708c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.console .ln b{color:var(--green);font-weight:500}
+.console .ln .e{color:var(--purple)}
+.console .ln .l{color:#ffd08a}
+.console::after{content:"";position:absolute;left:0;right:0;bottom:0;height:60px;
+  background:linear-gradient(transparent,#070a10)}
+.console .cur{color:var(--green);animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* forecast cards */
+.fgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.fcard{
+  background:linear-gradient(170deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);border-radius:16px;padding:16px 17px;
+  transition:.45s cubic-bezier(.2,.8,.3,1);position:relative;overflow:hidden;
+}
+.fcard:hover{transform:translateY(-5px);border-color:rgba(255,169,77,.45);
+  box-shadow:0 18px 40px -20px rgba(255,169,77,.45)}
+.fcard h3{font-size:15px;font-weight:650;display:flex;justify-content:space-between;align-items:center}
+.fcard h3 em{font-style:normal;font-size:10.5px;color:var(--orange);
+  border:1px solid rgba(255,169,77,.3);padding:2px 8px;border-radius:6px}
+.q1{font-size:25px;font-weight:700;margin:13px 0 3px;color:#ffd7a8;letter-spacing:-.5px}
+.q1s{font-size:11px;color:var(--sub)}
+.ci{margin-top:12px;font-size:11.5px;color:var(--sub);
+  display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:10px}
+.ci b{color:#cfd9e8;font-weight:600}
+
+/* main charts */
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.rcard{
+  background:linear-gradient(170deg,rgba(21,29,44,.92),rgba(13,18,28,.92));
+  border:1px solid var(--line);border-radius:18px;padding:18px 16px 8px;
+  transition:.45s cubic-bezier(.2,.8,.3,1);position:relative;
+}
+.rcard:hover{border-color:rgba(77,141,255,.42);box-shadow:0 20px 46px -24px rgba(77,141,255,.55)}
+.rcard.full{grid-column:1 / -1}
+.rtop{display:flex;justify-content:space-between;align-items:center;padding:0 6px 6px}
+.rtop h3{font-size:16.5px;font-weight:650;letter-spacing:.5px}
+.rtop .r2b{font-size:12px;padding:4px 11px;border-radius:999px;
+  background:rgba(45,212,167,.1);border:1px solid rgba(45,212,167,.32);color:#7fe6c4}
+.rchart{width:100%;height:330px}
+
+/* table */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:11px 14px;text-align:right;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--sub);font-weight:500;font-size:12px;letter-spacing:.6px;
+  background:rgba(255,255,255,.02)}
+tbody tr{transition:.28s}
+tbody tr:hover{background:rgba(77,141,255,.07)}
+td.up{color:var(--red)} td.dn{color:var(--green)}
+.pill{display:inline-block;padding:2px 9px;border-radius:6px;font-size:11.5px}
+
+/* legend */
+.legend{display:flex;gap:20px;justify-content:center;margin:6px 0 4px;flex-wrap:wrap}
+.legend i{display:inline-block;width:22px;height:3px;border-radius:2px;margin-right:7px;vertical-align:middle}
+.legend span{font-size:12px;color:var(--sub)}
+
+footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);
+  color:var(--sub);font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.2,.8,.3,1),
+  transform .8s cubic-bezier(.2,.8,.3,1)}
+.rv.in{opacity:1;transform:none}
+
+@media(max-width:1200px){
+  .kpis,.fgrid{grid-template-columns:repeat(2,1fr)}
+  .grid2,.mgrid{grid-template-columns:1fr}
+  h1{font-size:29px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brandline">
+      <span class="dot"></span>
+      <span>LSTM&nbsp;+&nbsp;GARCH(1,1)&nbsp;HYBRID&nbsp;FORECASTING&nbsp;ENGINE</span>
+    </div>
+    <h1>铜价智能预测决策面板</h1>
+    <p class="sub">
+      基于 <b style="color:#a9c6ff">2024 全年 366 天</b> 五大核心地区现货均价，构建
+      <b style="color:#a9c6ff">LSTM 长短期记忆网络</b>（条件均值）与
+      <b style="color:#ffc78f">GARCH(1,1) 广义自回归条件异方差模型</b>（条件方差）的混合预测框架。
+      以 <b style="color:#ff9f9f">11–12 月共 $VALDAYS 天样本外验证集</b> 检验泛化能力，
+      并外推 <b style="color:#ffc78f">2025 年 1–3 月（$FUTDAYS 天）</b> 价格路径与 95% 置信区间。
+    </p>
+    <div class="chips">
+      <span class="chip">训练样本 $TRAINDAYS 天 · 滑动窗口 $WIN</span>
+      <span class="chip">迭代轮次 $EPOCHS epochs</span>
+      <span class="chip o">验证集 $VALDAYS 天（样本外）</span>
+      <span class="chip o">预测期 2025-01-01 → 2025-03-31</span>
+      <span class="chip g">平均 R² = $AVGR2</span>
+      <span class="chip g">生成时间 $GENTIME</span>
+    </div>
+  </header>
+
+  <section class="rv">
+    <div class="shead"><h2>核心指标总览</h2><p>样本外验证集决定系数 R² 与误差指标</p></div>
+    <div class="kpis" id="kpis"></div>
+  </section>
+
+  <section class="rv">
+    <div class="shead"><h2>模型训练收敛过程</h2><p>Epoch 迭代 Loss 下降曲线 · 训练日志实时回显</p></div>
+    <div class="grid2">
+      <div class="panel"><div id="lossChart" class="chart"></div></div>
+      <div class="panel">
+        <div class="console" id="console"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="rv">
+    <div class="shead"><h2>2025 年第一季度预测摘要</h2><p>未来 3 个月日均预测价与 GARCH 95% 置信区间</p></div>
+    <div class="panel">
+      <div class="legend">
+        <span><i style="background:#4d8dff"></i>真实历史价格（2024 全年）</span>
+        <span><i style="background:#ff5f6d"></i>样本外验证预测（11–12 月）</span>
+        <span><i style="background:#ffa94d"></i>2025 Q1 未来预测</span>
+        <span><i style="background:rgba(255,169,77,.32);height:11px"></i>GARCH 95% 置信区间</span>
+      </div>
+      <div class="fgrid" id="fgrid"></div>
+    </div>
+  </section>
+
+  <section class="rv">
+    <div class="shead"><h2>五大地区专属预测对比图</h2><p>蓝色真实价格 · 红色样本外验证 · 橙色未来外推与置信带</p></div>
+    <div class="mgrid" id="mgrid"></div>
+  </section>
+
+  <section class="rv">
+    <div class="shead"><h2>2025 Q1 分区月度预测明细</h2><p>月度均价预测、环比变动与波动区间</p></div>
+    <div class="panel"><table id="tbl"></table></div>
+  </section>
+
+  <section class="rv">
+    <div class="shead"><h2>方法论说明</h2><p>建模口径与指标定义</p></div>
+    <div class="panel" style="font-size:12.5px;line-height:2;color:#9fb0c8">
+      <b style="color:#a9c6ff">① 条件均值（LSTM）</b>　滑动窗口 $WIN 天，2 层 LSTM（hidden=64）+ 线性 AR 跳连，
+      Adam(8e-3) 训练 $EPOCHS epochs，MSE 损失。<br/>
+      <b style="color:#ff9f9f">② 样本外验证口径</b>　模型参数<b>仅由 1–10 月（$TRAINDAYS 天）拟合</b>，
+      对 11–12 月（$VALDAYS 天）执行<b>滚动单步外推（walk‑forward）</b>：每个交易日使用该日之前已实现的真实历史
+      作为输入，模型从未接触验证集的标签。R² 在该 $VALDAYS 天样本外区间上计算。<br/>
+      <b style="color:#ffc78f">③ 条件方差（GARCH）</b>　对 LSTM 对数收益残差拟合 GARCH(1,1)，
+      极大似然估计；逐步递推多步条件方差 σ²<sub>t+h</sub> = ω + (α+β)·σ²<sub>t+h−1</sub>，
+      累积方差经 1.96 倍标准差还原为对数价格的 95% 置信区间，呈典型"喇叭口"扩散形态。<br/>
+      <b style="color:#7fe6c4">④ 未来外推</b>　验证完成后，以<b>全年 366 天</b>重新拟合外推模型（单步 + 多步展开联合损失，
+      抑制长程递归漂移），再递归外推 2025 Q1 共 $FUTDAYS 步。
+    </div>
+  </section>
+
+  <footer>
+    <span>LSTM-GARCH 混合预测引擎 · 数据源：历史价_全年完善版.xlsx（2024 全年）</span>
+    <span>置信水平 95% · 正态分布假设 · 递归外推 $FUTDAYS 步</span>
+  </footer>
+</div>
+
+<script>$ECHARTS_JS</script>
+<script>
+const D = $DATA_JSON;
+const STATIC = new URLSearchParams(location.search).has('static');   // 静态渲染模式（截图/打印用）
+const C = {blue:'#4d8dff', red:'#ff5f6d', orange:'#ffa94d', green:'#2dd4a7', sub:'#8b9bb4', line:'#1f2a3d'};
+const axisStyle = {
+  axisLine:{lineStyle:{color:'#243049'}},
+  axisLabel:{color:'#7f8fa8',fontSize:11},
+  splitLine:{lineStyle:{color:'rgba(255,255,255,.045)'}},
+  axisTick:{show:false}
+};
+const tip = {
+  trigger:'axis',
+  backgroundColor:'rgba(10,14,22,.95)',
+  borderColor:'#2a3550', borderWidth:1,
+  textStyle:{color:'#e6edf7',fontSize:12},
+  extraCssText:'border-radius:10px;box-shadow:0 12px 34px rgba(0,0,0,.55);border:1px solid #26334a;'
+};
+
+/* ---------- 数字滚动 ---------- */
+function countUp(el, to, dec, dur){
+  if(STATIC){ el.textContent = to.toFixed(dec); return; }
+  const t0 = performance.now();
+  (function tick(t){
+    const k = Math.min(1,(t-t0)/dur);
+    const e = 1-Math.pow(1-k,3);
+    el.textContent = (to*e).toFixed(dec);
+    if(k<1) requestAnimationFrame(tick);
+  })(t0);
+}
+
+/* ---------- KPI ---------- */
+(function(){
+  const box = document.getElementById('kpis');
+  D.regions.forEach((r,i)=>{
+    const el = document.createElement('div');
+    el.className='kpi';
+    el.innerHTML = `
+      <div class="rk"><span class="rn">${r.name}</span><span class="tag">R²</span></div>
+      <div class="rv" data-v="${r.r2}" data-d="4">0.0000</div>
+      <div class="rl">决定系数（样本外）</div>
+      <div class="bar"><i data-w="${Math.max(0,Math.min(1,(r.r2+0.2)/1.2))*100}"></i></div>
+      <div class="mt"><span>RMSE ${r.rmse.toFixed(0)}</span><span>MAPE ${r.mape.toFixed(2)}%</span></div>`;
+    box.appendChild(el);
+  });
+})();
+
+/* ---------- Q1 卡片 ---------- */
+(function(){
+  const box = document.getElementById('fgrid');
+  D.regions.forEach(r=>{
+    const q1 = r.monthly.reduce((a,b)=>a+b.pred,0)/r.monthly.length;
+    const lo = r.monthly.reduce((a,b)=>a+b.lo,0)/r.monthly.length;
+    const hi = r.monthly.reduce((a,b)=>a+b.hi,0)/r.monthly.length;
+    const last = r.real[r.real.length-1];
+    const chg = (q1/last-1)*100;
+    const el = document.createElement('div');
+    el.className='fcard';
+    el.innerHTML = `
+      <h3>${r.name}<em>Q1 预测</em></h3>
+      <div class="q1" data-v="${q1}" data-d="0">0</div>
+      <div class="q1s">元/吨 · 较 2024 年末 <b style="color:${chg>=0?'#ff5f6d':'#2dd4a7'}">${chg>=0?'+':''}${chg.toFixed(2)}%</b></div>
+      <div class="ci"><span>95% 下界 <b>${lo.toFixed(0)}</b></span><span>上界 <b>${hi.toFixed(0)}</b></span></div>`;
+    box.appendChild(el);
+  });
+})();
+
+/* ---------- Loss 曲线 ---------- */
+(function(){
+  const ch = echarts.init(document.getElementById('lossChart'), null, {renderer:'canvas'});
+  const E = D.meta.epochs;
+  const xs = Array.from({length:E},(_,i)=>i+1);
+  ch.setOption({
+    animation:!STATIC, animationDuration:2600, animationEasing:'cubicOut',
+    grid:{left:62,right:22,top:52,bottom:44},
+    title:{text:'Training Loss — MSE (log-price)',left:6,top:4,
+      textStyle:{color:'#c7d5e8',fontSize:13,fontWeight:600}},
+    legend:{top:2,right:6,textStyle:{color:'#8b9bb4',fontSize:11},itemWidth:16,itemHeight:8,
+      itemGap:14,icon:'roundRect'},
+    tooltip:Object.assign({axisPointer:{type:'cross',lineStyle:{color:'#3a4a66'}}},tip),
+    xAxis:Object.assign({type:'category',data:xs,name:'Epoch',
+      nameTextStyle:{color:'#7f8fa8',fontSize:11},boundaryGap:false},axisStyle),
+    yAxis:Object.assign({type:'log',name:'Loss',scale:true,
+      nameTextStyle:{color:'#7f8fa8',fontSize:11}},axisStyle),
+    series: D.regions.map((r,i)=>({
+      name:r.name, type:'line', data:r.loss, smooth:true, symbol:'none',
+      lineStyle:{width:2,color:['#4d8dff','#ffa94d','#2dd4a7','#a78bfa','#ff5f6d'][i]},
+      animationDelay: i*260
+    }))
+  });
+})();
+
+/* ---------- 控制台 ---------- */
+(function(){
+  const c = document.getElementById('console');
+  const lines = D.meta.logs;
+  let i=0;
+  function push(){
+    if(i>=lines.length){
+      c.insertAdjacentHTML('beforeend',
+        `<div class="ln" style="color:#2dd4a7">[完成] 五大地区模型收敛，面板渲染完毕<span class="cur">_</span></div>`);
+      c.scrollTop = c.scrollHeight; return;
+    }
+    const L = lines[i++];
+    c.insertAdjacentHTML('beforeend',
+      `<div class="ln">${L.replace(/\[(.*?)\]/,(m,g)=>`<span class="e">[${g}]</span>`)}</div>`);
+    c.scrollTop = c.scrollHeight;
+    setTimeout(push, 105);
+  }
+  push();
+})();
+
+/* ---------- 地区大图 ---------- */
+const charts = [];
+(function(){
+  const box = document.getElementById('mgrid');
+  D.regions.forEach((r,idx)=>{
+    const el = document.createElement('div');
+    el.className = 'rcard' + (idx===4?' full':'');
+    el.innerHTML = `<div class="rtop"><h3>${r.name} · 2024 历史 + 2025 Q1 外推</h3>
+        <span class="r2b">R² = ${r.r2.toFixed(4)}</span></div>
+        <div class="rchart" id="rc${idx}"></div>`;
+    box.appendChild(el);
+  });
+})();
+
+function buildCharts(){
+  D.regions.forEach((r,idx)=>{
+    const ch = echarts.init(document.getElementById('rc'+idx), null, {renderer:'canvas'});
+    charts.push(ch);
+    const n = r.dates.length;
+    const real = r.real.concat(Array(r.futDates.length).fill(null));
+    const val  = Array(n-r.valDates.length).fill(null).concat(r.valPred, Array(r.futDates.length).fill(null));
+    const fut  = Array(n-1).fill(null).concat([r.real[n-1]], r.futPred);
+    const lo   = Array(n-1).fill(null).concat([r.real[n-1]], r.futLo);
+    const hi   = Array(n-1).fill(null).concat([r.real[n-1]], r.futHi);
+    const all  = r.dates.concat(r.futDates);
+
+    const area = (data,color,op)=>({
+      name:'b',type:'line',data,smooth:0.28,symbol:'none',lineStyle:{width:0},
+      stack:'ci'+idx,areaStyle:{color},silent:true,z:1,tooltip:{show:false},
+      animationDelay:1500+idx*180, legendHoverLink:false
+    });
+
+    ch.setOption({
+      animation:!STATIC, animationDuration:2200, animationEasing:'cubicInOut',
+      grid:{left:66,right:24,top:34,bottom:52},
+      tooltip:Object.assign({axisPointer:{type:'cross',lineStyle:{color:'#3a4a66'}},
+        formatter:p=>{
+          const i = p[0].dataIndex;
+          let s = `<div style="font-size:11px;color:#8b9bb4;margin-bottom:4px">${p[0].axisValue}</div>`;
+          s += p.filter(x=>x.seriesName!=='b'&&x.seriesName!=='ci').map(x=>
+            `${x.marker}${x.seriesName}：<b>${x.value==null?'-':Number(x.value).toFixed(0)}</b>`).join('<br/>');
+          if(lo[i]!=null && hi[i]!=null)
+            s += `<div style="margin-top:4px;font-size:11px;color:#ffa94d">
+                  95% 置信区间：<b>${lo[i].toFixed(0)} – ${hi[i].toFixed(0)}</b></div>`;
+          return s;
+        }},tip),
+      legend:{top:2,right:8,textStyle:{color:'#8b9bb4',fontSize:11},itemWidth:16,itemHeight:8,
+        itemGap:12,icon:'roundRect',data:['真实历史价格','样本外验证预测','2025 Q1 预测']},
+      xAxis:Object.assign({type:'category',data:all,boundaryGap:false,
+        axisLabel:{color:'#7f8fa8',fontSize:10,interval:Math.floor(all.length/7)}},axisStyle),
+      yAxis:Object.assign({type:'value',scale:true,name:'元/吨',
+        nameTextStyle:{color:'#7f8fa8',fontSize:11},
+        axisLabel:{color:'#7f8fa8',fontSize:10,formatter:v=>(v/1000).toFixed(0)+'k'}},axisStyle),
+      series:[
+        area(lo,'rgba(255,169,77,0)',1),
+        {name:'ci',type:'line',data:hi.map((v,i)=>v==null?null:v-lo[i]),smooth:0.28,
+         symbol:'none',lineStyle:{width:0},stack:'ci'+idx,
+         areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
+            {offset:0,color:'rgba(255,169,77,.34)'},{offset:1,color:'rgba(255,169,77,.05)'}])},
+         silent:true,z:1,tooltip:{show:false},animationDelay:1500+idx*180,legendHoverLink:false},
+        {name:'真实历史价格',type:'line',data:real,smooth:0.28,symbol:'none',
+         lineStyle:{width:2.1,color:C.blue,
+           shadowColor:'rgba(77,141,255,.5)',shadowBlur:9,shadowOffsetY:3},
+         z:4,animationDelay:idx*180},
+        {name:'样本外验证预测',type:'line',data:val,smooth:0.28,symbol:'none',
+         lineStyle:{width:2.4,color:C.red,
+           shadowColor:'rgba(255,95,109,.5)',shadowBlur:9,shadowOffsetY:3},
+         z:5,animationDelay:700+idx*180},
+        {name:'2025 Q1 预测',type:'line',data:fut,smooth:0.28,symbol:'none',
+         lineStyle:{width:2.4,color:C.orange,type:'dashed',
+           shadowColor:'rgba(255,169,77,.55)',shadowBlur:10,shadowOffsetY:3},
+         z:6,animationDelay:1100+idx*180}
+      ]
+    });
+  });
+}
+
+/* ---------- 表格 ---------- */
+(function(){
+  const t = document.getElementById('tbl');
+  let h = `<thead><tr><th>地区</th><th>2024 年末实际</th>`;
+  D.regions[0].monthly.forEach(m=>h+=`<th>${m.month} 预测</th>`);
+  h+=`<th>Q1 区间</th><th>R²</th></tr></thead><tbody>`;
+  D.regions.forEach(r=>{
+    const last = r.real[r.real.length-1];
+    h+=`<tr><td><b>${r.name}</b></td><td>${last.toFixed(0)}</td>`;
+    r.monthly.forEach(m=>{
+      const c = m.pred>=last?'up':'dn';
+      h+=`<td class="${c}">${m.pred.toFixed(0)}<br>
+          <span style="font-size:10.5px;opacity:.72">${m.pred>=last?'+':''}${(m.pred/last*100-100).toFixed(1)}%</span></td>`;
+    });
+    const q1 = r.monthly.reduce((a,b)=>a+b.pred,0)/r.monthly.length;
+    h+=`<td>${Math.min(...r.futLo).toFixed(0)} – ${Math.max(...r.futHi).toFixed(0)}</td>
+        <td><span class="pill" style="background:rgba(45,212,167,.1);color:#7fe6c4">${r.r2.toFixed(4)}</span></td></tr>`;
+  });
+  h+=`</tbody>`;
+  t.innerHTML = h;
+})();
+
+/* ---------- 滚动显现 ---------- */
+const io = new IntersectionObserver(es=>{
+  es.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('in');
+      if(e.target.querySelector('#mgrid') && !charts.length) setTimeout(buildCharts, 300);
+      e.target.querySelectorAll('[data-v]').forEach((el,i)=>{
+        setTimeout(()=>countUp(el,parseFloat(el.dataset.v),parseInt(el.dataset.d),1500), i*80);
+      });
+      e.target.querySelectorAll('.bar i').forEach((el,i)=>{
+        const w = el.dataset.w + '%';
+        if(STATIC){ el.style.width = w; }
+        else setTimeout(()=>el.style.width=w, 200+i*80);
+      });
+    }
+  });
+},{threshold:.14});
+if(STATIC){
+  document.querySelectorAll('.rv').forEach(el=>el.classList.add('in'));
+  setTimeout(buildCharts, 400);
+} else {
+  document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+}
+
+/* 保底：3 秒后无条件写入最终值，避免动画异常时显示中间值 */
+setTimeout(()=>{
+  document.querySelectorAll('[data-v]').forEach(el=>{
+    el.textContent = parseFloat(el.dataset.v).toFixed(parseInt(el.dataset.d));
+  });
+  document.querySelectorAll('.bar i').forEach(el=>{
+    el.style.width = el.dataset.w + '%';
+  });
+}, 3000);
+
+window.addEventListener('resize',()=>charts.forEach(c=>c.resize()));
+setTimeout(()=>charts.forEach(c=>c.resize()), 500);
+</script>
+</body>
+</html>
