@@ -1,6 +1,10 @@
 # 生成产物（运行脚本后自动重建）
 output/
 
+# PyInstaller 构建中间产物（保留 dist/ 作为分发成品）
+build_tmp/
+*.spec
+
 # Python
 __pycache__/
 *.py[cod]

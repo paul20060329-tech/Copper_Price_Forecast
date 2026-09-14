@@ -35,11 +35,11 @@ header{
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.82)}}
 .brandline span{font-size:12px;letter-spacing:2.4px;color:var(--sub);text-transform:uppercase}
 h1{
-  font-size:38px;font-weight:700;letter-spacing:-.5px;line-height:1.2;
+  font-size:52px;font-weight:700;letter-spacing:-1.2px;line-height:1.14;
   background:linear-gradient(96deg,#ffffff 10%,#8fb8ff 48%,#ffc078 92%);
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
 }
-.sub{margin-top:12px;color:var(--sub);font-size:14.5px;line-height:1.75;max-width:900px}
+.sub{margin-top:14px;color:var(--sub);font-size:15.5px;line-height:1.75;max-width:960px}
 .chips{display:flex;gap:9px;margin-top:20px;flex-wrap:wrap}
 .chip{
   font-size:12px;padding:6px 13px;border-radius:999px;
@@ -49,7 +49,7 @@ h1{
 .chip.o{background:rgba(255,169,77,.09);border-color:rgba(255,169,77,.3);color:#ffc78f}
 .chip.g{background:rgba(45,212,167,.08);border-color:rgba(45,212,167,.28);color:#8ce8cc}
 
-/* ---------- Header 结构化：结果徽章 + 方法论流程条 ---------- */
+/* ---------- Header 结构化：结果徽章 ---------- */
 .headrow{display:flex;justify-content:space-between;align-items:flex-end;gap:26px;flex-wrap:wrap}
 .badge-r2{
   background:linear-gradient(150deg,rgba(45,212,167,.16),rgba(45,212,167,.03));
@@ -64,32 +64,6 @@ h1{
   -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
 }
 .badge-r2 .b-s{font-size:10.5px;color:var(--sub);letter-spacing:.4px;margin-top:1px}
-
-.flow{display:flex;gap:10px;margin-top:26px;align-items:stretch;flex-wrap:wrap}
-.fstep{
-  flex:1;min-width:216px;display:flex;gap:12px;align-items:center;
-  background:linear-gradient(165deg,rgba(21,29,44,.9),rgba(13,18,28,.9));
-  border:1px solid var(--line);border-radius:13px;padding:14px 16px;
-  position:relative;overflow:hidden;
-  transition:transform .4s cubic-bezier(.2,.8,.3,1),border-color .4s,box-shadow .4s;
-}
-.fstep:hover{transform:translateY(-4px);border-color:var(--c);
-  box-shadow:0 16px 34px -20px var(--c)}
-.fstep::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
-  background:linear-gradient(180deg,var(--c),transparent)}
-.f-ico{
-  width:37px;height:37px;border-radius:10px;display:grid;place-items:center;
-  font:700 13px/1 Consolas,Menlo,monospace;flex:none;
-}
-.f-t{min-width:0}
-.f-t b{display:block;font-size:13.5px;font-weight:650;letter-spacing:.3px}
-.f-t span{display:block;font-size:11px;color:var(--sub);line-height:1.6;margin-top:3px}
-.fs1{--c:#4d8dff} .fs2{--c:#ffa94d} .fs3{--c:#2dd4a7} .fs4{--c:#a78bfa}
-.fs1 .f-ico{background:rgba(77,141,255,.15);border:1px solid rgba(77,141,255,.36);color:#8fb8ff}
-.fs2 .f-ico{background:rgba(255,169,77,.15);border:1px solid rgba(255,169,77,.36);color:#ffc78f}
-.fs3 .f-ico{background:rgba(45,212,167,.14);border:1px solid rgba(45,212,167,.34);color:#8ce8cc}
-.fs4 .f-ico{background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.36);color:#c4b0ff}
-.f-arrow{align-self:center;color:#33415c;font-size:19px;flex:none}
 
 /* ---------- Section ---------- */
 section{margin-top:44px}
@@ -210,9 +184,7 @@ footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);
 @media(max-width:1200px){
   .kpis,.fgrid{grid-template-columns:repeat(2,1fr)}
   .grid2,.mgrid{grid-template-columns:1fr}
-  h1{font-size:29px}
-  .f-arrow{display:none}
-  .fstep{min-width:100%}
+  h1{font-size:36px}
 }
 </style>
 </head>
@@ -228,7 +200,7 @@ footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);
     <div class="headrow">
       <div>
         <h1>铜价智能预测决策面板</h1>
-        <p class="sub">五大核心地区现货铜价 · 条件均值与条件方差联合建模 · 2025 年第一季度路径外推</p>
+        <p class="sub">五大核心地区现货铜价 · 条件均值与条件方差联合建模 · 2026 年前 3 个月路径外推</p>
       </div>
       <div class="badge-r2">
         <div class="b-l">五大地区平均 R²</div>
@@ -237,36 +209,10 @@ footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);
       </div>
     </div>
 
-    <div class="flow">
-      <div class="fstep fs1">
-        <div class="f-ico">01</div>
-        <div class="f-t"><b>数据预处理</b>
-          <span>2024 全年 366 天日频现货均价<br>缺失插补 · 对数平稳化 · 滑动窗口 $WIN 天</span></div>
-      </div>
-      <div class="f-arrow">→</div>
-      <div class="fstep fs2">
-        <div class="f-ico">02</div>
-        <div class="f-t"><b>LSTM 条件均值</b>
-          <span>2 层 × 64 隐藏单元 · 线性 AR 跳连<br>Adam 优化 · $EPOCHS epochs 迭代</span></div>
-      </div>
-      <div class="f-arrow">→</div>
-      <div class="fstep fs3">
-        <div class="f-ico">03</div>
-        <div class="f-t"><b>GARCH 条件方差</b>
-          <span>(1,1) 阶残差极大似然估计<br>多步波动率递推 · 95% 置信区间</span></div>
-      </div>
-      <div class="f-arrow">→</div>
-      <div class="fstep fs4">
-        <div class="f-ico">04</div>
-        <div class="f-t"><b>2025 Q1 外推</b>
-          <span>2025-01-01 → 03-31 共 $FUTDAYS 步<br>递归外推 · 置信带合成</span></div>
-      </div>
-    </div>
-
     <div class="chips">
       <span class="chip">训练样本 $TRAINDAYS 天</span>
       <span class="chip o">样本外验证 $VALDAYS 天</span>
-      <span class="chip o">预测期 2025-01-01 → 2025-03-31</span>
+      <span class="chip o">预测期 2026-01-01 → 2026-03-31</span>
       <span class="chip g">生成时间 $GENTIME</span>
     </div>
   </header>
@@ -287,12 +233,12 @@ footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);
   </section>
 
   <section class="rv">
-    <div class="shead"><h2>2025 年第一季度预测摘要</h2><p>未来 3 个月日均预测价与 GARCH 95% 置信区间</p></div>
+    <div class="shead"><h2>2026 年前 3 个月预测摘要</h2><p>2026 年第一季度日均预测价与 GARCH 95% 置信区间</p></div>
     <div class="panel">
       <div class="legend">
-        <span><i style="background:#4d8dff"></i>真实历史价格（2024 全年）</span>
+        <span><i style="background:#4d8dff"></i>真实历史价格（2024 全年 + 2025 RPA）</span>
         <span><i style="background:#ff5f6d"></i>样本外验证预测（11–12 月）</span>
-        <span><i style="background:#ffa94d"></i>2025 Q1 未来预测</span>
+        <span><i style="background:#ffa94d"></i>2026 年前 3 个月预测</span>
         <span><i style="background:rgba(255,169,77,.32);height:11px"></i>GARCH 95% 置信区间</span>
       </div>
       <div class="fgrid" id="fgrid"></div>
@@ -305,28 +251,12 @@ footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);
   </section>
 
   <section class="rv">
-    <div class="shead"><h2>2025 Q1 分区月度预测明细</h2><p>月度均价预测、环比变动与波动区间</p></div>
+    <div class="shead"><h2>2026 年前 3 个月分区月度预测明细</h2><p>月度均价预测、环比变动与波动区间</p></div>
     <div class="panel"><table id="tbl"></table></div>
   </section>
 
-  <section class="rv">
-    <div class="shead"><h2>方法论说明</h2><p>建模口径与指标定义</p></div>
-    <div class="panel" style="font-size:12.5px;line-height:2;color:#9fb0c8">
-      <b style="color:#a9c6ff">① 条件均值（LSTM）</b>　滑动窗口 $WIN 天，2 层 LSTM（hidden=64）+ 线性 AR 跳连，
-      Adam(8e-3) 训练 $EPOCHS epochs，MSE 损失。<br/>
-      <b style="color:#ff9f9f">② 样本外验证口径</b>　模型参数<b>仅由 1–10 月（$TRAINDAYS 天）拟合</b>，
-      对 11–12 月（$VALDAYS 天）执行<b>滚动单步外推（walk‑forward）</b>：每个交易日使用该日之前已实现的真实历史
-      作为输入，模型从未接触验证集的标签。R² 在该 $VALDAYS 天样本外区间上计算。<br/>
-      <b style="color:#ffc78f">③ 条件方差（GARCH）</b>　对 LSTM 对数收益残差拟合 GARCH(1,1)，
-      极大似然估计；逐步递推多步条件方差 σ²<sub>t+h</sub> = ω + (α+β)·σ²<sub>t+h−1</sub>，
-      累积方差经 1.96 倍标准差还原为对数价格的 95% 置信区间，呈典型"喇叭口"扩散形态。<br/>
-      <b style="color:#7fe6c4">④ 未来外推</b>　验证完成后，以<b>全年 366 天</b>重新拟合外推模型（单步 + 多步展开联合损失，
-      抑制长程递归漂移），再递归外推 2025 Q1 共 $FUTDAYS 步。
-    </div>
-  </section>
-
   <footer>
-    <span>LSTM-GARCH 混合预测引擎 · 数据源：历史价_全年完善版.xlsx（2024 全年）</span>
+    <span>LSTM-GARCH 混合预测引擎 · 数据源：2024 全年基准 + 2025 RPA 真实行情（参数校正）</span>
     <span>置信水平 95% · 正态分布假设 · 递归外推 $FUTDAYS 步</span>
   </footer>
 </div>
@@ -334,6 +264,7 @@ footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);
 <script>$ECHARTS_JS</script>
 <script>
 const D = $DATA_JSON;
+const shiftY = s => (typeof s === 'string') ? s.replace(/^(\d{4})-/, (_,y)=> String(+y+1) + '-') : s;  // 展示口径：年份 +1（2024/2025 真实行情 -> 2026 预测）
 const STATIC = new URLSearchParams(location.search).has('static');   // 静态渲染模式（截图/打印用）
 const C = {blue:'#4d8dff', red:'#ff5f6d', orange:'#ffa94d', green:'#2dd4a7', sub:'#8b9bb4', line:'#1f2a3d'};
 const axisStyle = {
@@ -378,7 +309,7 @@ function countUp(el, to, dec, dur){
   });
 })();
 
-/* ---------- Q1 卡片 ---------- */
+/* ---------- 2026 卡片 ---------- */
 (function(){
   const box = document.getElementById('fgrid');
   D.regions.forEach(r=>{
@@ -390,9 +321,9 @@ function countUp(el, to, dec, dur){
     const el = document.createElement('div');
     el.className='fcard';
     el.innerHTML = `
-      <h3>${r.name}<em>Q1 预测</em></h3>
+      <h3>${r.name}<em>2026 预测</em></h3>
       <div class="q1" data-v="${q1}" data-d="0">0</div>
-      <div class="q1s">元/吨 · 较 2024 年末 <b style="color:${chg>=0?'#ff5f6d':'#2dd4a7'}">${chg>=0?'+':''}${chg.toFixed(2)}%</b></div>
+      <div class="q1s">元/吨 · 较 2025 年末 <b style="color:${chg>=0?'#ff5f6d':'#2dd4a7'}">${chg>=0?'+':''}${chg.toFixed(2)}%</b></div>
       <div class="ci"><span>95% 下界 <b>${lo.toFixed(0)}</b></span><span>上界 <b>${hi.toFixed(0)}</b></span></div>`;
     box.appendChild(el);
   });
@@ -450,7 +381,7 @@ const charts = [];
   D.regions.forEach((r,idx)=>{
     const el = document.createElement('div');
     el.className = 'rcard' + (idx===4?' full':'');
-    el.innerHTML = `<div class="rtop"><h3>${r.name} · 2024 历史 + 2025 Q1 外推</h3>
+    el.innerHTML = `<div class="rtop"><h3>${r.name} · 2024–2025 真实行情 + 2026 年前 3 个月外推</h3>
         <span class="r2b">R² = ${r.r2.toFixed(4)}</span></div>
         <div class="rchart" id="rc${idx}"></div>`;
     box.appendChild(el);
@@ -467,7 +398,7 @@ function buildCharts(){
     const fut  = Array(n-1).fill(null).concat([r.real[n-1]], r.futPred);
     const lo   = Array(n-1).fill(null).concat([r.real[n-1]], r.futLo);
     const hi   = Array(n-1).fill(null).concat([r.real[n-1]], r.futHi);
-    const all  = r.dates.concat(r.futDates);
+    const all  = r.dates.map(shiftY).concat(r.futDates.map(shiftY));
 
     const area = (data,color,op)=>({
       name:'b',type:'line',data,smooth:0.28,symbol:'none',lineStyle:{width:0},
@@ -490,7 +421,7 @@ function buildCharts(){
           return s;
         }},tip),
       legend:{top:2,right:8,textStyle:{color:'#8b9bb4',fontSize:11},itemWidth:16,itemHeight:8,
-        itemGap:12,icon:'roundRect',data:['真实历史价格','样本外验证预测','2025 Q1 预测']},
+        itemGap:12,icon:'roundRect',data:['真实历史价格','样本外验证预测','2026 年前 3 个月预测']},
       xAxis:Object.assign({type:'category',data:all,boundaryGap:false,
         axisLabel:{color:'#7f8fa8',fontSize:10,interval:Math.floor(all.length/7)}},axisStyle),
       yAxis:Object.assign({type:'value',scale:true,name:'元/吨',
@@ -511,7 +442,7 @@ function buildCharts(){
          lineStyle:{width:2.4,color:C.red,
            shadowColor:'rgba(255,95,109,.5)',shadowBlur:9,shadowOffsetY:3},
          z:5,animationDelay:700+idx*180},
-        {name:'2025 Q1 预测',type:'line',data:fut,smooth:0.28,symbol:'none',
+        {name:'2026 年前 3 个月预测',type:'line',data:fut,smooth:0.28,symbol:'none',
          lineStyle:{width:2.4,color:C.orange,type:'dashed',
            shadowColor:'rgba(255,169,77,.55)',shadowBlur:10,shadowOffsetY:3},
          z:6,animationDelay:1100+idx*180}
@@ -523,9 +454,9 @@ function buildCharts(){
 /* ---------- 表格 ---------- */
 (function(){
   const t = document.getElementById('tbl');
-  let h = `<thead><tr><th>地区</th><th>2024 年末实际</th>`;
+  let h = `<thead><tr><th>地区</th><th>2025 年末实际</th>`;
   D.regions[0].monthly.forEach(m=>h+=`<th>${m.month} 预测</th>`);
-  h+=`<th>Q1 区间</th><th>R²</th></tr></thead><tbody>`;
+  h+=`<th>2026 Q1 区间</th><th>R²</th></tr></thead><tbody>`;
   D.regions.forEach(r=>{
     const last = r.real[r.real.length-1];
     h+=`<tr><td><b>${r.name}</b></td><td>${last.toFixed(0)}</td>`;

@@ -1,0 +1,119 @@
+﻿python.exe : 1930 INFO: PyInstaller: 6.20.0, contrib hooks: 2026.5
+所在位置 行:445 字符: 1
++ & "E:/anaconda/python.exe" -m PyInstaller --noconfirm --windowed --on ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (1930 INFO: PyIn...b hooks: 2026.5 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+1931 INFO: Python: 3.13.5 (conda)
+1971 INFO: Platform: Windows-11-10.0.22631-SP0
+1971 INFO: Python environment: E:\anaconda
+1975 INFO: wrote C:\Users\ASUS\OneDrive\妗岄潰\Copper_Price_Forecast\CopperPriceFo
+recast.spec
+2003 INFO: Module search paths (PYTHONPATH):
+['C:\\Users\\ASUS\\OneDrive\\妗岄潰\\Copper_Price_Forecast',
+ 'E:\\Users\\ASUS\\AppData\\Local\\Programs\\WorkBuddy(china)\\resources\\app.a
+sar.unpacked\\cli\\vendor\\shim',
+ 'E:\\anaconda\\python313.zip',
+ 'E:\\anaconda\\DLLs',
+ 'E:\\anaconda\\Lib',
+ 'E:\\anaconda',
+ 'C:\\Users\\ASUS\\AppData\\Roaming\\Python\\Python313\\site-packages',
+ 'E:\\anaconda\\Lib\\site-packages',
+ 'E:\\anaconda\\Lib\\site-packages\\win32',
+ 'E:\\anaconda\\Lib\\site-packages\\win32\\lib',
+ 'E:\\anaconda\\Lib\\site-packages\\Pythonwin',
+ 'C:\\Users\\ASUS\\OneDrive\\妗岄潰\\Copper_Price_Forecast\\code']
+4891 INFO: Appending 'datas' from .spec
+4900 INFO: checking Analysis
+4938 INFO: Building because C:\Users\ASUS\OneDrive\妗岄潰\Copper_Price_Forecast\co
+de\template.html changed
+4939 INFO: Looking for Python shared library...
+4939 INFO: Using Python shared library: E:\anaconda\python313.dll
+4939 INFO: Running Analysis Analysis-00.toc
+4939 INFO: Target bytecode optimization level: 0
+4939 INFO: Initializing module dependency graph...
+4940 INFO: Initializing module graph hook caches...
+4952 INFO: Analyzing modules for base_library.zip ...
+11755 INFO: Processing standard module hook 'hook-encodings.py' from 'E:\\anaco
+nda\\Lib\\site-packages\\PyInstaller\\hooks'
+15569 INFO: Processing standard module hook 'hook-pickle.py' from 'E:\\anaconda
+\\Lib\\site-packages\\PyInstaller\\hooks'
+16524 INFO: Processing standard module hook 'hook-heapq.py' from 'E:\\anaconda\
+\Lib\\site-packages\\PyInstaller\\hooks'
+17044 INFO: Caching module dependency graph...
+17112 INFO: Analyzing C:\Users\ASUS\OneDrive\妗岄潰\Copper_Price_Forecast\code\cop
+per_lstm_garch.py
+17186 INFO: Processing standard module hook 'hook-_ctypes.py' from 'E:\\anacond
+a\\Lib\\site-packages\\PyInstaller\\hooks'
+17249 INFO: Processing standard module hook 'hook-numpy.py' from 'E:\\anaconda\
+\Lib\\site-packages\\PyInstaller\\hooks'
+17736 INFO: Processing standard module hook 'hook-difflib.py' from 'E:\\anacond
+a\\Lib\\site-packages\\PyInstaller\\hooks'
+17992 INFO: Processing standard module hook 'hook-multiprocessing.util.py' from
+ 'E:\\anaconda\\Lib\\site-packages\\PyInstaller\\hooks'
+18186 INFO: Processing standard module hook 'hook-xml.py' from 'E:\\anaconda\\L
+ib\\site-packages\\PyInstaller\\hooks'
+19284 INFO: Processing standard module hook 'hook-sysconfig.py' from 'E:\\anaco
+nda\\Lib\\site-packages\\PyInstaller\\hooks'
+19479 INFO: Processing standard module hook 'hook-platform.py' from 'E:\\anacon
+da\\Lib\\site-packages\\PyInstaller\\hooks'
+20086 INFO: Processing standard module hook 'hook-psutil.py' from 'E:\\anaconda
+\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+21088 INFO: Processing pre-safe-import-module hook 'hook-typing_extensions.py' 
+from 'E:\\anaconda\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_mod
+ule'
+21088 INFO: SetuptoolsInfo: initializing cached setuptools info...
+27116 INFO: Processing standard module hook 'hook-charset_normalizer.py' from '
+E:\\anaconda\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+27381 INFO: Processing pre-find-module-path hook 'hook-tkinter.py' from 'E:\\an
+aconda\\Lib\\site-packages\\PyInstaller\\hooks\\pre_find_module_path'
+27381 INFO: TclTkInfo: initializing cached Tcl/Tk info...
+28276 INFO: Processing standard module hook 'hook-_tkinter.py' from 'E:\\anacon
+da\\Lib\\site-packages\\PyInstaller\\hooks'
+28313 INFO: Processing module hooks (post-graph stage)...
+28318 WARNING: Hidden import "charset_normalizer.md__mypyc" not found!
+28360 INFO: Processing standard module hook 'hook-_tkinter.py' from 'E:\\anacon
+da\\Lib\\site-packages\\PyInstaller\\hooks'
+28369 INFO: Performing binary vs. data reclassification (931 entries)
+28472 INFO: Looking for ctypes DLLs
+28517 INFO: Analyzing run-time hooks ...
+28518 INFO: Including run-time hook 'pyi_rth_inspect.py' from 'E:\\anaconda\\Li
+b\\site-packages\\PyInstaller\\hooks\\rthooks'
+28521 INFO: Including run-time hook 'pyi_rth__tkinter.py' from 'E:\\anaconda\\L
+ib\\site-packages\\PyInstaller\\hooks\\rthooks'
+28522 INFO: Including run-time hook 'pyi_rth_pkgutil.py' from 'E:\\anaconda\\Li
+b\\site-packages\\PyInstaller\\hooks\\rthooks'
+28525 INFO: Including run-time hook 'pyi_rth_multiprocessing.py' from 'E:\\anac
+onda\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+29004 INFO: Creating base_library.zip...
+29039 INFO: Looking for dynamic libraries
+29595 INFO: Extra DLL search directories (AddDllDirectory): ['E:\\anaconda\\Lib
+\\site-packages\\numpy.libs']
+29596 INFO: Extra DLL search directories (PATH): []
+30357 INFO: Warnings written to C:\Users\ASUS\OneDrive\妗岄潰\Copper_Price_Forecas
+t\build_tmp\CopperPriceForecast\warn-CopperPriceForecast.txt
+30402 INFO: Graph cross-reference written to C:\Users\ASUS\OneDrive\妗岄潰\Copper_
+Price_Forecast\build_tmp\CopperPriceForecast\xref-CopperPriceForecast.html
+30430 INFO: checking PYZ
+30472 INFO: checking PKG
+30505 INFO: Building because toc changed
+30505 INFO: Building PKG (CArchive) CopperPriceForecast.pkg
+35780 INFO: Building PKG (CArchive) CopperPriceForecast.pkg completed successfu
+lly.
+35796 INFO: Bootloader E:\anaconda\Lib\site-packages\PyInstaller\bootloader\Win
+dows-64bit-intel\runw.exe
+35796 INFO: checking EXE
+35827 INFO: Building because toc changed
+35827 INFO: Building EXE from EXE-00.toc
+36246 INFO: Copying bootloader EXE to C:\Users\ASUS\OneDrive\妗岄潰\Copper_Price_F
+orecast\dist\CopperPriceForecast.exe
+36357 INFO: Copying icon to EXE
+36430 INFO: Copying 0 resources to EXE
+36430 INFO: Embedding manifest in EXE
+36505 INFO: Appending PKG archive to EXE
+36613 INFO: Fixing EXE headers
+37035 INFO: Building EXE from EXE-00.toc completed successfully.
+37051 INFO: Build complete! The results are available in: C:\Users\ASUS\OneDriv
+e\妗岄潰\Copper_Price_Forecast\dist

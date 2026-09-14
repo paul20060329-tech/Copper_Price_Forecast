@@ -33,22 +33,48 @@
 
 ## 三、快速开始
 
-### 环境要求
+> **分发给别人：Python 环境已内嵌在 exe 里，对方无需安装任何东西。**
+> 演示时推荐用「代码入口」运行（你运行的是代码，由代码去调用 exe），更便于现场讲解流程。
 
-- Python ≥ 3.9
-- 依赖：`torch` `numpy` `pandas` `scipy` `scikit-learn` `openpyxl`
-- `tkinter` 用于演示弹窗（Windows / macOS 自带；Linux 需 `apt install python3-tk`，或改用 `--nogui`）
+### 方式 A：代码入口演示（★ 推荐演示用）
 
-### 安装依赖
+本目录下两个入口文件都是「指向 exe 的代码」——你运行代码，实际计算由 exe 完成：
+
+| 入口文件         | 适用场景                                  | 说明                                               |
+| :--------------- | :---------------------------------------- | :------------------------------------------------- |
+| `run_demo.py`  | 演示电脑有 Python（IDE 自带的解释器也行） | 用代码框架打开并运行；顶部「演示输入区」可现场修改 |
+| `run_demo.bat` | 演示电脑**完全没装 Python**         | Windows 原生脚本，双击即可，零安装                 |
+
+```bash
+python run_demo.py                 # 标准演示：弹窗 + 自动打开面板
+python run_demo.py --nogui --raw   # 透传参数：无窗口 / 真实指标
+```
+
+两者效果一致：调用 `dist/CopperPriceForecast.exe` → 弹出 4 个进度窗口（各约 10 秒）
+→ 自动打开铜价预测决策面板。
+
+> `run_demo.py` 需要一个能跑 Python 的环境；若演示电脑没有 Python，请改用 `run_demo.bat`。
+
+### 方式 B：直接运行 exe（零代码，最简）
+
+已打包成品位于 `dist/CopperPriceForecast.exe`（约数十 MB，Python 已内置）。把整个 `dist`
+文件夹拷贝给对方，对方双击：
+
+1. 依次弹出 4 个"模型构建中"进度弹窗（各约 10 秒，用于演示）；
+2. 自动打开浏览器，展示铜价预测决策面板。
+
+面板输出在 exe 同级目录的 `output/copper_dashboard.html`；若 exe 所在目录不可写，
+会自动回退到 `文档/Copper_Price_Forecast_Output/`。
+
+> 该 exe 走「缓存演示」快路径（内置 `forecast_cache.json`），瞬时出图、不触发训练。
+
+### 方式 C：从源码运行（仅开发者改代码 / 重新训练时需要）
+
+若你想自己改代码或真正重新训练，需要本机自备 Python ≥ 3.9 并安装依赖（依赖清单已不随仓库分发，
+按需 `pip install` 即可）：
 
 ```bash
 pip install torch numpy pandas scipy scikit-learn openpyxl
-```
-
-### 运行
-
-```bash
-# 标准演示：4 个弹窗各约 10 秒，随后自动打开面板
 python code/copper_lstm_garch.py
 ```
 
@@ -78,20 +104,30 @@ python code/copper_lstm_garch.py --retrain         # 重新训练并刷新缓存
 ```
 Copper_Price_Forecast/
 ├── code/
-│   ├── copper_lstm_garch.py     # 主程序：弹窗调度 + 建模流水线 + 面板渲染
+│   ├── copper_lstm_garch.py     # 主程序：弹窗调度 + 渲染 + 入口（演示快路径仅依赖 numpy）
+│   ├── paths.py                 # 资源路径解析（兼容源码 / PyInstaller 冻结模式）
+│   ├── logs.py                  # 训练日志生成（仅依赖标准库 + numpy）
+│   ├── trainer.py               # 训练流水线（仅 --retrain 时动态加载，依赖 torch）
 │   ├── garch.py                 # GARCH(1,1) 极大似然估计与多步波动率递推
 │   ├── template.html            # 面板模板（ECharts + 动画）
-│   ├── forecast_cache.json      # 训练结果缓存（演示快路径）
+│   ├── forecast_cache.json      # 训练结果缓存（演示快路径，无需训练即可出图）
 │   └── vendor/
 │       └── echarts.min.js       # 离线图表库，运行时内联进 HTML
 ├── data/
 │   └── 历史价_全年完善版.xlsx    # 数据源：2024 全年，每地区一张工作表
+├── dist/
+│   └── CopperPriceForecast.exe  # 打包后的独立可执行文件（双击即用，无需 Python）
 ├── output/                      # 运行后生成（已在 .gitignore 中排除）
+├── run_demo.py                  # ★ 演示入口：代码指向 exe（演示电脑有 Python 时用）
+├── run_demo.bat                 # ★ 演示入口：零安装版（演示电脑无 Python 时用）
+├── build.bat / build.sh        # 重新打包 exe 的辅助脚本（仅开发者用）
 ├── README.md
 └── .gitignore
 ```
 
 > `output/` 是纯生成产物，不包含在仓库中。运行主程序即可重建。
+> `dist/CopperPriceForecast.exe` 是分发给评委/同事的成品，`run_demo.py` / `run_demo.bat`
+> 是演示时的代码入口，详见第三节与第十节。
 
 ---
 
@@ -213,3 +249,63 @@ HTML 已声明 UTF-8 并使用系统字体栈（`PingFang SC` / `Microsoft YaHei
 ## 九、许可
 
 本项目仅用于学习、研究与竞赛演示。预测结果不构成任何投资建议。
+
+---
+
+## 十、打包为独立 exe（分发给无 Python 环境的评委 / 同事）
+
+目标：让对方**不装任何环境、双击即用**。成品即 `dist/CopperPriceForecast.exe`。
+
+### 设计要点（为什么小、为什么能直接用）
+
+- 演示快路径默认只读取 `forecast_cache.json`，**不触发训练**，因此运行时不依赖 torch / pandas / scipy。
+- 训练代码（`trainer.py`）与 `garch.py` 仅在显式 `--retrain` 时通过 `importlib` 动态加载，
+  PyInstaller 不会静态跟随，故冻结包**不含**这些重型库。
+- 打包时只携带 `numpy` + 标准库（tkinter / webbrowser / json）+ 数据资源，体积仅数十 MB。
+- `paths.py` 用 `sys._MEIPASS` 做资源定位：冻结模式下资源在临时解包目录，输出写在 exe 同级目录，
+  因此对方把 `dist` 文件夹放到任意路径（U 盘 / 桌面 / Downloads）都能正常读写。
+
+### 重新打包（可选，给想自己改代码的人）
+
+Windows：
+
+```bat
+build.bat            # 使用默认 python
+build.bat D:\venv\Scripts\python.exe
+```
+
+macOS / Linux：
+
+```bash
+./build.sh
+```
+
+前置仅需两个包：`pip install pyinstaller numpy`（注意：构建用的 Python 必须带 tkinter，
+否则弹窗会缺失；推荐用本机已有的 Anaconda / 官方 Python，而非精简运行时）。
+
+### 分发与运行
+
+1. 将 `dist/` 整个文件夹压缩（zip）发给对方；
+2. 对方解压后双击 `CopperPriceForecast.exe`；
+3. 观看 4 个弹窗 → 自动打开浏览器面板。
+
+> 若对方是 Linux / macOS，请用 `build.sh` 在本机对应系统重新打包，得到对应平台的可执行文件。
+> 跨平台 exe 不通用（Windows 的 exe 不能在 macOS 直接运行）。
+
+### 命令行参数（exe 同样支持）
+
+在 exe 旁新建一个 `run.bat` 写入 `CopperPriceForecast.exe --nogui --noopen` 即可无窗口运行。
+支持参数：`--nogui` `--noopen` `--raw`；`--retrain` 在 exe 中不可用（缺少 torch），需源码环境。
+
+---
+
+## 十一、常见问题补充
+
+**Q6：exe 打开后没有弹窗 / 直接黑屏退出**
+
+多为构建用 Python 缺少 tkinter 所致。请用带 tkinter 的 Python 重新 `build.bat`；
+或临时用 `CopperPriceForecast.exe --nogui` 验证是否能出面板（无窗口模式不依赖 tkinter）。
+
+**Q7：exe 体积有多大、能否邮件发送**
+
+约数十 MB（仅 numpy + 标准库），可压缩后通过微信 / 邮件发送；若被拦，可用网盘或 U 盘。
