@@ -65,6 +65,25 @@ h1{
 }
 .badge-r2 .b-s{font-size:10.5px;color:var(--sub);letter-spacing:.4px;margin-top:1px}
 
+/* ---------- C2 关键结论条 ---------- */
+.hl{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px;
+}
+.hl .h{
+  background:linear-gradient(165deg,rgba(21,29,44,.9),rgba(13,18,28,.9));
+  border:1px solid var(--line);border-radius:14px;padding:14px 16px;
+  position:relative;overflow:hidden;
+  opacity:0;transform:translateY(18px);
+}
+.hl.in .h{opacity:1;transform:none;
+  transition:opacity .6s cubic-bezier(.2,.8,.3,1),transform .6s cubic-bezier(.2,.8,.3,1)}
+.hl .h::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--hc,var(--blue))}
+.hl .h .hl-l{font-size:10.5px;color:var(--sub);letter-spacing:1px;text-transform:uppercase}
+.hl .h .hl-v{font-size:19px;font-weight:700;margin-top:6px;letter-spacing:-.4px;
+  color:var(--hc,var(--txt))}
+.hl .h .hl-s{font-size:11px;color:var(--sub);margin-top:3px}
+
 /* ---------- Section ---------- */
 section{margin-top:44px}
 .shead{display:flex;align-items:baseline;gap:14px;margin-bottom:20px;flex-wrap:wrap}
@@ -151,10 +170,20 @@ section{margin-top:44px}
 }
 .rcard:hover{border-color:rgba(77,141,255,.42);box-shadow:0 20px 46px -24px rgba(77,141,255,.55)}
 .rcard.full{grid-column:1 / -1}
-.rtop{display:flex;justify-content:space-between;align-items:center;padding:0 6px 6px}
-.rtop h3{font-size:16.5px;font-weight:650;letter-spacing:.5px}
-.rtop .r2b{font-size:12px;padding:4px 11px;border-radius:999px;
+.rtop{display:flex;justify-content:space-between;align-items:center;gap:14px;
+  padding:0 6px 6px;flex-wrap:wrap}
+.rtop h3{flex:0 1 auto;font-size:16.5px;font-weight:650;letter-spacing:.5px}
+.rtop .r2b{flex:0 0 auto;font-size:12px;padding:4px 11px;border-radius:999px;
   background:rgba(45,212,167,.1);border:1px solid rgba(45,212,167,.32);color:#7fe6c4}
+
+/* 图例：独占一行，不再与标题、R² 徽章抢空间 */
+.rlg{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;
+  gap:8px 20px;margin:2px 0 8px;font-size:11.5px;color:var(--sub);line-height:1}
+.rlg .k{display:inline-flex;align-items:center;gap:7px}
+.rlg .k i{flex:0 0 auto;display:inline-block;width:18px;height:0;
+  border-top:2.4px solid currentColor;border-radius:2px}
+.rlg .k.band i{height:10px;border:0;border-radius:3px;
+  background:linear-gradient(180deg,rgba(255,169,77,.42),rgba(255,169,77,.07))}
 .rchart{width:100%;height:330px}
 
 /* table */
@@ -168,8 +197,16 @@ tbody tr:hover{background:rgba(77,141,255,.07)}
 td.up{color:var(--red)} td.dn{color:var(--green)}
 .pill{display:inline-block;padding:2px 9px;border-radius:6px;font-size:11.5px}
 
-/* legend */
-.legend{display:flex;gap:20px;justify-content:center;margin:6px 0 4px;flex-wrap:wrap}
+/* legend：图例条（.rlg 区分线型 + 置信带色块；.legend 保留为历史别名） */
+.rlg,.legend{display:flex;gap:8px 20px;justify-content:center;align-items:center;
+  flex-wrap:wrap;margin:6px 0 4px;line-height:1}
+.rlg{font-size:11.5px;color:var(--sub)}
+.legend{font-size:12px;color:var(--sub)}
+.rlg .k{display:inline-flex;align-items:center;gap:7px}
+.rlg .k i{flex:0 0 auto;display:inline-block;width:18px;height:0;
+  border-top:2.4px solid currentColor;border-bottom:0;border-radius:2px}
+.rlg .k.band i{height:10px;border:0;border-radius:3px;
+  background:linear-gradient(180deg,rgba(255,169,77,.42),rgba(255,169,77,.07))}
 .legend i{display:inline-block;width:22px;height:3px;border-radius:2px;margin-right:7px;vertical-align:middle}
 .legend span{font-size:12px;color:var(--sub)}
 
@@ -177,14 +214,64 @@ footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);
   color:var(--sub);font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
 
 /* reveal */
-.rv{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.2,.8,.3,1),
+section.rv{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.2,.8,.3,1),
   transform .8s cubic-bezier(.2,.8,.3,1)}
-.rv.in{opacity:1;transform:none}
+section.rv.in{opacity:1;transform:none}
+
+/* ---------- A3 卡片交错入场 ---------- */
+.kpi,.fcard,.rcard{opacity:0;transform:translateY(22px)}
+section.rv.in .kpi,section.rv.in .fcard,section.rv.in .rcard,
+.kpi.anim,.fcard.anim,.rcard.anim{
+  opacity:1;transform:none;
+  transition:opacity .72s cubic-bezier(.2,.8,.3,1),transform .72s cubic-bezier(.2,.8,.3,1),
+    border-color .45s,box-shadow .45s}
+/* 悬停/联动时取消入场延时，避免与 hover 抬升打架 */
+.kpi.nodelay,.fcard.nodelay,.rcard.nodelay{transition-delay:0s!important}
+/* hover 抬升仍走原有 .45s 曲线，覆盖入场 transition 的位移部分 */
+section.rv.in .kpi:hover{transform:translateY(-6px)}
+section.rv.in .fcard:hover{transform:translateY(-5px)}
+section.rv.in .rcard:hover{border-color:rgba(77,141,255,.42)}
+
+/* ---------- C1 地区联动聚焦 ---------- */
+.rcard.dim{opacity:.3;filter:saturate(.45)}
+.rcard.dim:hover{opacity:.72;filter:none}
+.kpi.act{border-color:rgba(77,141,255,.6);box-shadow:0 18px 40px -18px rgba(77,141,255,.6)}
+.kpi.act::after{opacity:1}
+
+/* ---------- 表格进场 + 行高亮 ---------- */
+#tbl tbody tr{opacity:0;transform:translateY(10px)}
+#tbl tbody tr.anim{opacity:1;transform:none;
+  transition:opacity .5s cubic-bezier(.2,.8,.3,1),transform .5s cubic-bezier(.2,.8,.3,1)}
+#tbl tbody tr:hover td{background:rgba(77,141,255,.08)}
+#tbl tbody td.hot{background:rgba(77,141,255,.055)}
+
+/* ---------- 控制台待机态 ---------- */
+.console .idle{color:#3d4a60}
 
 @media(max-width:1200px){
   .kpis,.fgrid{grid-template-columns:repeat(2,1fr)}
   .grid2,.mgrid{grid-template-columns:1fr}
+  .hl{grid-template-columns:repeat(2,1fr)}
   h1{font-size:36px}
+}
+
+/* ---------- D1 动效降级：尊重系统「减少动态效果」 ---------- */
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;
+    transition-duration:.001ms!important}
+  .rv,.kpi,.fcard,.rcard,#tbl tbody tr{opacity:1!important;transform:none!important}
+  .kpi,.fcard,.rcard{transition:none}
+}
+
+/* ---------- 打印 / 浅色导出 ---------- */
+@media print{
+  body{background:#fff;color:#111}
+  .panel,.kpi,.fcard,.rcard,.badge-r2{background:#fff!important;border-color:#d3dae6!important;
+    box-shadow:none!important}
+  .console{display:none}
+  h1,.badge-r2 .b-v,.kpi .rv{-webkit-text-fill-color:#111;color:#111}
+  .rv,.kpi,.fcard,.rcard,#tbl tbody tr{opacity:1!important;transform:none!important}
 }
 </style>
 </head>
@@ -215,9 +302,11 @@ footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);
       <span class="chip o">预测期 2026-01-01 → 2026-03-31</span>
       <span class="chip g">生成时间 $GENTIME</span>
     </div>
+
+    <div class="hl" id="hl"></div>
   </header>
 
-  <section class="rv">
+  <section class="rv" id="kpi-sec">
     <div class="shead"><h2>核心指标总览</h2><p>样本外验证集决定系数 R² 与误差指标</p></div>
     <div class="kpis" id="kpis"></div>
   </section>
@@ -235,11 +324,11 @@ footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);
   <section class="rv">
     <div class="shead"><h2>2026 年前 3 个月预测摘要</h2><p>2026 年第一季度日均预测价与 GARCH 95% 置信区间</p></div>
     <div class="panel">
-      <div class="legend">
-        <span><i style="background:#4d8dff"></i>真实历史价格（2024 全年 + 2025 RPA）</span>
-        <span><i style="background:#ff5f6d"></i>样本外验证预测（11–12 月）</span>
-        <span><i style="background:#ffa94d"></i>2026 年前 3 个月预测</span>
-        <span><i style="background:rgba(255,169,77,.32);height:11px"></i>GARCH 95% 置信区间</span>
+      <div class="rlg">
+        <span class="k"><i style="border-color:#4d8dff"></i>真实历史价格（2024 全年 + 2025 RPA）</span>
+        <span class="k"><i style="border-color:#ff5f6d"></i>样本外验证预测（11–12 月）</span>
+        <span class="k"><i style="border-color:#ffa94d;border-top-style:dashed"></i>2026 年前 3 个月预测</span>
+        <span class="k band"><i></i>GARCH 95% 置信区间</span>
       </div>
       <div class="fgrid" id="fgrid"></div>
     </div>
@@ -267,6 +356,11 @@ const D = $DATA_JSON;
 const shiftY = s => (typeof s === 'string') ? s.replace(/^(\d{4})-/, (_,y)=> String(+y+1) + '-') : s;  // 展示口径：年份 +1（2024/2025 真实行情 -> 2026 预测）
 const STATIC = new URLSearchParams(location.search).has('static');   // 静态渲染模式（截图/打印用）
 const C = {blue:'#4d8dff', red:'#ff5f6d', orange:'#ffa94d', green:'#2dd4a7', sub:'#8b9bb4', line:'#1f2a3d'};
+
+/* D1 动效降级：系统开启「减少动态效果」时，全部动画退化为静态终值 */
+const RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const NOMOTION = STATIC || RM;       // 不播动画（直接落到终值）
+const NOGROW   = NOMOTION;           // 图表不做生长动画
 const axisStyle = {
   axisLine:{lineStyle:{color:'#243049'}},
   axisLabel:{color:'#7f8fa8',fontSize:11},
@@ -283,7 +377,7 @@ const tip = {
 
 /* ---------- 数字滚动 ---------- */
 function countUp(el, to, dec, dur){
-  if(STATIC){ el.textContent = to.toFixed(dec); return; }
+  if(NOMOTION){ el.textContent = to.toFixed(dec); return; }
   const t0 = performance.now();
   (function tick(t){
     const k = Math.min(1,(t-t0)/dur);
@@ -294,11 +388,13 @@ function countUp(el, to, dec, dur){
 }
 
 /* ---------- KPI ---------- */
+const kpiCards = [];
 (function(){
   const box = document.getElementById('kpis');
   D.regions.forEach((r,i)=>{
     const el = document.createElement('div');
     el.className='kpi';
+    el.dataset.region = i;
     el.innerHTML = `
       <div class="rk"><span class="rn">${r.name}</span><span class="tag">R²</span></div>
       <div class="rv" data-v="${r.r2}" data-d="4">0.0000</div>
@@ -306,6 +402,64 @@ function countUp(el, to, dec, dur){
       <div class="bar"><i data-w="${Math.max(0,Math.min(1,(r.r2+0.2)/1.2))*100}"></i></div>
       <div class="mt"><span>RMSE ${r.rmse.toFixed(0)}</span><span>MAPE ${r.mape.toFixed(2)}%</span></div>`;
     box.appendChild(el);
+    kpiCards.push(el);
+  });
+})();
+
+/* ---------- C2 关键结论条（全部由数据推导，无硬编码） ---------- */
+(function(){
+  const box = document.getElementById('hl');
+  const q1 = r => r.monthly.reduce((a,b)=>a+b.pred,0)/r.monthly.length;
+  const last = r => r.real[r.real.length-1];
+  const chg = r => q1(r)/last(r)*100-100;
+  const band = r => r.monthly.reduce((a,b)=>a+(b.hi-b.lo),0)/r.monthly.length/last(r)*100;
+
+  const byQ1   = [...D.regions].sort((a,b)=>q1(b)-q1(a));
+  const byChg  = [...D.regions].sort((a,b)=>chg(b)-chg(a));
+  const byBand = [...D.regions].sort((a,b)=>band(a)-band(b));
+  const hi = byQ1[0], gr = byChg[0], nar = byBand[0];
+  const allGain = D.regions.every(r=>chg(r)>0);
+  const avgChg = D.regions.reduce((a,r)=>a+chg(r),0)/D.regions.length;
+
+  const items = [
+    {l:'Q1 均价最高', v:`${hi.name} ${q1(hi).toFixed(0)} 元/吨`, s:'五大地区第一季度日均预测价首位', c:C.orange},
+    {l:'预期涨幅最大', v:`${gr.name} ${chg(gr)>=0?'+':''}${chg(gr).toFixed(2)}%`, s:'较 2025 年末实际价', c:'#ff5f6d'},
+    {l:'置信带最窄', v:`${nar.name} ±${(band(nar)/2).toFixed(1)}%`, s:'波动不确定性最低，预测最稳健', c:C.green},
+    {l:allGain?'全线一致上行':'走势分化', v:allGain?`平均 +${avgChg.toFixed(2)}%`:`最弱 ${byChg[byChg.length-1].name}`,
+      s:allGain?'五大地区均给出正向预测，方向一致性高':'各地区方向不一致，需关注分化风险',
+      c:allGain?C.green:C.purple}
+  ];
+  box.innerHTML = items.map(it=>
+    `<div class="h" style="--hc:${it.c}">
+       <div class="hl-l">${it.l}</div>
+       <div class="hl-v">${it.v}</div>
+       <div class="hl-s">${it.s}</div>
+     </div>`).join('');
+})();
+
+/* ---------- C1 地区联动：KPI 悬停 -> 大图聚焦 ---------- */
+(function(){
+  let cur = -1;
+  function un(d){
+    if(!d) return;
+    d.classList.add('anim');
+    d.classList.add('nodelay');
+  }
+  function focus(idx){
+    if(idx===cur) return;
+    cur = idx;
+    rcards.forEach((c,i)=>{
+      c.classList.toggle('dim', idx>=0 && i!==idx);
+      if(idx>=0) un(c);
+    });
+    kpiCards.forEach((c,i)=>{
+      c.classList.toggle('act', idx>=0 && i===idx);
+      if(idx>=0) un(c);
+    });
+  }
+  kpiCards.forEach((c,i)=>{
+    c.addEventListener('mouseenter', ()=>focus(i));
+    c.addEventListener('mouseleave', ()=>focus(-1));
   });
 })();
 
@@ -330,12 +484,13 @@ function countUp(el, to, dec, dur){
 })();
 
 /* ---------- Loss 曲线 ---------- */
+let lossChart = null;
 (function(){
-  const ch = echarts.init(document.getElementById('lossChart'), null, {renderer:'canvas'});
+  const ch = lossChart = echarts.init(document.getElementById('lossChart'), null, {renderer:'canvas'});
   const E = D.meta.epochs;
   const xs = Array.from({length:E},(_,i)=>i+1);
   ch.setOption({
-    animation:!STATIC, animationDuration:2600, animationEasing:'cubicOut',
+    animation:!NOMOTION, animationDuration:2600, animationEasing:'cubicOut',
     grid:{left:62,right:22,top:52,bottom:44},
     title:{text:'Training Loss — MSE (log-price)',left:6,top:4,
       textStyle:{color:'#c7d5e8',fontSize:13,fontWeight:600}},
@@ -354,11 +509,15 @@ function countUp(el, to, dec, dur){
   });
 })();
 
-/* ---------- 控制台 ---------- */
-(function(){
+/* ---------- A2 控制台：进入视口才回显 ---------- */
+const consoleBox = (function(){
   const c = document.getElementById('console');
   const lines = D.meta.logs;
-  let i=0;
+  let i = 0, started = false, timer = null;
+
+  function idle(){
+    c.innerHTML = `<div class="ln idle">[standby] 等待模型训练启动 ...<span class="cur">_</span></div>`;
+  }
   function push(){
     if(i>=lines.length){
       c.insertAdjacentHTML('beforeend',
@@ -369,13 +528,41 @@ function countUp(el, to, dec, dur){
     c.insertAdjacentHTML('beforeend',
       `<div class="ln">${L.replace(/\[(.*?)\]/,(m,g)=>`<span class="e">[${g}]</span>`)}</div>`);
     c.scrollTop = c.scrollHeight;
-    setTimeout(push, 105);
+    timer = setTimeout(push, 105);
   }
-  push();
+  function start(){
+    if(started) return;
+    started = true;
+    c.innerHTML = '';
+    push();
+  }
+  function reset(){
+    if(timer) clearTimeout(timer);
+    started = false; i = 0; idle();
+  }
+  function finish(){                       // D2 兜底：立即写完终值
+    if(timer) clearTimeout(timer);
+    started = true;
+    c.innerHTML = '';
+    lines.forEach(L=>c.insertAdjacentHTML('beforeend',
+      `<div class="ln">${L.replace(/\[(.*?)\]/,(m,g)=>`<span class="e">[${g}]</span>`)}</div>`));
+    i = lines.length;
+    push();
+  }
+  idle();
+  if(NOMOTION) finish();
+  return {start, reset, finish, get started(){return started;}};
 })();
 
 /* ---------- 地区大图 ---------- */
-const charts = [];
+const charts = [], rcards = [];
+let chartsBuilt = false, chartsGrown = false;
+const RLG = [                                             // 与 series 顺序一一对应，含置信带
+  {t:'真实历史价格',c:C.blue,  s:'border-color:#4d8dff'},
+  {t:'样本外验证预测',c:C.red,  s:'border-color:#ff5f6d'},
+  {t:'2026 年前 3 个月预测',c:C.orange,s:'border-color:#ffa94d;border-top-style:dashed'},
+  {t:'95% 置信区间',c:'',      s:'',band:1},
+];
 (function(){
   const box = document.getElementById('mgrid');
   D.regions.forEach((r,idx)=>{
@@ -383,15 +570,20 @@ const charts = [];
     el.className = 'rcard' + (idx===4?' full':'');
     el.innerHTML = `<div class="rtop"><h3>${r.name} · 2024–2025 真实行情 + 2026 年前 3 个月外推</h3>
         <span class="r2b">R² = ${r.r2.toFixed(4)}</span></div>
+        <div class="rlg">${RLG.map(g=>g.band
+            ? `<span class="k band"><i></i>${g.t}</span>`
+            : `<span class="k"><i style="${g.s}"></i>${g.t}</span>`).join('')}</div>
         <div class="rchart" id="rc${idx}"></div>`;
     box.appendChild(el);
+    rcards.push(el);
   });
 })();
 
-function buildCharts(){
-  D.regions.forEach((r,idx)=>{
-    const ch = echarts.init(document.getElementById('rc'+idx), null, {renderer:'canvas'});
-    charts.push(ch);
+/* 单张地区图的完整 option。anim 控制是否播放入场生长动画。
+   抽成独立函数的原因：重播必须靠 notMerge:true 重新提交整份配置，
+   ECharts 才会丢弃旧状态、重新播放 series 的 animationDuration/Delay；
+   只改顶层 animation 字段而不重提数据是无效的（不会触发入场动画）。 */
+function chartOption(r, idx, anim){
     const n = r.dates.length;
     const real = r.real.concat(Array(r.futDates.length).fill(null));
     const val  = Array(n-r.valDates.length).fill(null).concat(r.valPred, Array(r.futDates.length).fill(null));
@@ -400,15 +592,15 @@ function buildCharts(){
     const hi   = Array(n-1).fill(null).concat([r.real[n-1]], r.futHi);
     const all  = r.dates.map(shiftY).concat(r.futDates.map(shiftY));
 
-    const area = (data,color,op)=>({
+    const area = (data,color)=>({                          // 置信带下沿（stack 占位）
       name:'b',type:'line',data,smooth:0.28,symbol:'none',lineStyle:{width:0},
       stack:'ci'+idx,areaStyle:{color},silent:true,z:1,tooltip:{show:false},
-      animationDelay:1500+idx*180, legendHoverLink:false
+      legendHoverLink:false
     });
 
-    ch.setOption({
-      animation:!STATIC, animationDuration:2200, animationEasing:'cubicInOut',
-      grid:{left:66,right:24,top:34,bottom:52},
+    return {
+      animation:anim,                                      // 入场生长总开关
+      grid:{left:66,right:24,top:14,bottom:52},
       tooltip:Object.assign({axisPointer:{type:'cross',lineStyle:{color:'#3a4a66'}},
         formatter:p=>{
           const i = p[0].dataIndex;
@@ -420,35 +612,82 @@ function buildCharts(){
                   95% 置信区间：<b>${lo[i].toFixed(0)} – ${hi[i].toFixed(0)}</b></div>`;
           return s;
         }},tip),
-      legend:{top:2,right:8,textStyle:{color:'#8b9bb4',fontSize:11},itemWidth:16,itemHeight:8,
-        itemGap:12,icon:'roundRect',data:['真实历史价格','样本外验证预测','2026 年前 3 个月预测']},
       xAxis:Object.assign({type:'category',data:all,boundaryGap:false,
         axisLabel:{color:'#7f8fa8',fontSize:10,interval:Math.floor(all.length/7)}},axisStyle),
       yAxis:Object.assign({type:'value',scale:true,name:'元/吨',
         nameTextStyle:{color:'#7f8fa8',fontSize:11},
         axisLabel:{color:'#7f8fa8',fontSize:10,formatter:v=>(v/1000).toFixed(0)+'k'}},axisStyle),
       series:[
-        area(lo,'rgba(255,169,77,0)',1),
+        area(lo,'rgba(255,169,77,0)'),
         {name:'ci',type:'line',data:hi.map((v,i)=>v==null?null:v-lo[i]),smooth:0.28,
          symbol:'none',lineStyle:{width:0},stack:'ci'+idx,
          areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[
             {offset:0,color:'rgba(255,169,77,.34)'},{offset:1,color:'rgba(255,169,77,.05)'}])},
-         silent:true,z:1,tooltip:{show:false},animationDelay:1500+idx*180,legendHoverLink:false},
+         silent:true,z:1,tooltip:{show:false},legendHoverLink:false,
+         animationDuration:1600,animationDelay:0},
         {name:'真实历史价格',type:'line',data:real,smooth:0.28,symbol:'none',
          lineStyle:{width:2.1,color:C.blue,
            shadowColor:'rgba(77,141,255,.5)',shadowBlur:9,shadowOffsetY:3},
-         z:4,animationDelay:idx*180},
+         z:4,animationDuration:1500,animationDelay:0},
         {name:'样本外验证预测',type:'line',data:val,smooth:0.28,symbol:'none',
          lineStyle:{width:2.4,color:C.red,
            shadowColor:'rgba(255,95,109,.5)',shadowBlur:9,shadowOffsetY:3},
-         z:5,animationDelay:700+idx*180},
+         z:5,animationDuration:1200,animationDelay:620},
         {name:'2026 年前 3 个月预测',type:'line',data:fut,smooth:0.28,symbol:'none',
          lineStyle:{width:2.4,color:C.orange,type:'dashed',
            shadowColor:'rgba(255,169,77,.55)',shadowBlur:10,shadowOffsetY:3},
-         z:6,animationDelay:1100+idx*180}
+         z:6,animationDuration:1200,animationDelay:1180}
       ]
-    });
+    };
+}
+
+function buildCharts(){
+  if(chartsBuilt) return;
+  chartsBuilt = true;
+  const anim = !NOMOTION;                                  // 静态/降级模式下不播动画
+  D.regions.forEach((r,idx)=>{
+    const ch = echarts.init(document.getElementById('rc'+idx), null, {renderer:'canvas'});
+    charts.push(ch);
+    ch.setOption(chartOption(r, idx, anim));               // 首次建图即进场动画
   });
+  chartsGrown = true;                                      // 首次动画已由 init 播放，避免再 clear 一次造成闪烁
+}
+
+/* A1 生长 / 复位：每次进入视口都重播入场动画。
+   ECharts 5 的重播陷阱（已实测确认）：
+     对同一实例再次 setOption({animation:true}, {notMerge:true}) 时，若 series
+     的数量/名称/数据长度未变，ECharts 判定为「更新(update)」而非「初始化(init)」，
+     于是走 animationDurationUpdate 分支 —— 折线图的更新动画几乎不可见，
+     表现为「二次以后没有动画」。
+   唯一可靠的解法是先 ch.clear() 清空实例，再 setOption，强制走完整 init 路径。
+   实测：clear+setOption(true) 可无限次重播；clear+setOption(false) 得到静态终态。
+
+   另需注意「定时器交错」问题：
+     growCharts 与 resetCharts 都会为 5 张图各挂一个错峰 setTimeout。
+     若用户快速滚动，复位任务的延迟回调可能在生长任务之后才执行，
+     从而用 animation:false 覆盖掉刚设好的 animation:true，表现为「没动画」。
+     故用 chartTimers 统一登记，新动作开始前先清掉上一批未执行的定时器。 */
+let chartTimers = [];
+function applyCharts(anim, stagger){
+  chartTimers.forEach(clearTimeout);
+  chartTimers = [];
+  charts.forEach((ch,idx)=>{
+    const r = D.regions[idx];
+    chartTimers.push(setTimeout(()=>{
+      ch.clear();
+      ch.setOption(chartOption(r, idx, anim), {notMerge:true});
+    }, idx*stagger));
+  });
+}
+function growCharts(){
+  if(chartsGrown || NOGROW || !chartsBuilt) return;
+  chartsGrown = true;
+  applyCharts(true, 130);                                  // 五张卡依次错峰生长
+}
+function resetCharts(){
+  if(!chartsBuilt || NOGROW) return;
+  if(chartsGrown) chartsGrown = false;
+  applyCharts(false, 80);                                  // 静态终态，待下次进入再生长
 }
 
 /* ---------- 表格 ---------- */
@@ -473,42 +712,153 @@ function buildCharts(){
   t.innerHTML = h;
 })();
 
-/* ---------- 滚动显现 ---------- */
+/* ---------- 表格行交错入场（进入视口触发） ---------- */
+function revealRows(){
+  document.querySelectorAll('#tbl tbody tr').forEach((tr,i)=>{
+    if(NOMOTION) tr.classList.add('anim');
+    else setTimeout(()=>tr.classList.add('anim'), i*70);
+  });
+}
+/* 表头列高亮：hover 单元格时同列淡染 */
+(function(){
+  const t = document.getElementById('tbl');
+  t.addEventListener('mouseover', e=>{
+    const td = e.target.closest('td'); if(!td) return;
+    const idx = [...td.parentNode.children].indexOf(td);
+    t.querySelectorAll('tbody tr').forEach(tr=>{
+      const c = tr.children[idx];
+      if(c) c.classList.add('hot');
+    });
+  });
+  t.addEventListener('mouseout', ()=>{
+    t.querySelectorAll('td.hot').forEach(c=>c.classList.remove('hot'));
+  });
+})();
+
+/* C2 结论条：位于 header 内，不在 .rv 区块，故单独观察 */
+(function(){
+  const hl = document.getElementById('hl');
+  if(!hl) return;
+  if(NOMOTION){ hl.classList.add('in'); return; }
+  const o = new IntersectionObserver(es=>{
+    es.forEach(e=>{ if(e.isIntersecting){ hl.classList.add('in'); o.unobserve(hl); } });
+  },{threshold:.2});
+  o.observe(hl);
+})();
+
+/* ---------- 滚动显现（A1/A2/A3/C2 的触发总线） ---------- */
 const io = new IntersectionObserver(es=>{
   es.forEach(e=>{
+    const el = e.target;
     if(e.isIntersecting){
-      e.target.classList.add('in');
-      if(e.target.querySelector('#mgrid') && !charts.length) setTimeout(buildCharts, 300);
-      e.target.querySelectorAll('[data-v]').forEach((el,i)=>{
-        setTimeout(()=>countUp(el,parseFloat(el.dataset.v),parseInt(el.dataset.d),1500), i*80);
+      /* 区块本体：父级 .rv 淡入（保留原始节奏） */
+      el.classList.add('in');
+
+      /* A3 卡片交错入场：为子卡按序打上 .anim */
+      const cards = el.querySelectorAll('.kpi,.fcard,.rcard');
+      if(cards.length){
+        cards.forEach((c,i)=>{
+          if(NOMOTION) c.classList.add('anim');
+          else setTimeout(()=>c.classList.add('anim'), 60+i*70);
+        });
+      }
+
+      /* 数字滚动与进度条（保持原逻辑，重复进入不重播） */
+      el.querySelectorAll('[data-v]').forEach((d,i)=>{
+        if(d.dataset.done) return;
+        d.dataset.done = '1';
+        setTimeout(()=>countUp(d,parseFloat(d.dataset.v),parseInt(d.dataset.d),1500), i*80);
       });
-      e.target.querySelectorAll('.bar i').forEach((el,i)=>{
-        const w = el.dataset.w + '%';
-        if(STATIC){ el.style.width = w; }
-        else setTimeout(()=>el.style.width=w, 200+i*80);
+      el.querySelectorAll('.bar i').forEach((b,i)=>{
+        if(b.dataset.done) return;
+        b.dataset.done = '1';
+        const w = b.dataset.w + '%';
+        if(NOMOTION){ b.style.width = w; }
+        else setTimeout(()=>b.style.width=w, 200+i*80);
       });
+
+      /* A2 控制台：进入即打字（A1 地区大图的生长/重播统一由下方 resetIO 负责，
+         原因见 resetIO 注释：主 io 的 .14 阈值对高区块不再回调，无法承担重播） */
+      if(el.querySelector('#console')){
+        if(NOMOTION) consoleBox.finish(); else consoleBox.start();
+      }
+      if(el.querySelector('#tbl')) revealRows();
     }
   });
 },{threshold:.14});
-if(STATIC){
+
+/* ---------- 重播总线（A1 图表生长 / A2 控制台打字） ----------
+   为什么必须由本观察器同时负责「复位」与「重播」：
+     主 io 的 threshold=.14 观察的是外层 section.rv，而该 section 高约 1360px、
+     视口 900px，滚到页面底部时它的可见比例仍有约 0.29 —— 始终高于 0.14。
+     因此 IntersectionObserver 永远不会因「跨越 .14」而再次回调，
+     主 io 里的 growCharts() 在二次进入时根本不会被执行，
+     表现为「复位了但不再重播」。故重播必须由本观察器承担。
+   两个元素的尺寸差异很大，故使用各自的进入阈值：
+     #mgrid   高约 1270px，首屏可见比例约 0.63，滚到底降到 0.23~0.35 → 阈值 0.6
+     #console 高约 340px，首屏可见比例约 0.40，滚到底完全离开       → 阈值 0.3
+   （统一用 0.6 会让 #console 首屏被判为「离开」而不启动，故必须分开。） */
+if(!NOMOTION){
+  const watch = (el, inRatio, onEnter, onLeave)=>{
+    if(!el) return;
+    const io = new IntersectionObserver(es=>{
+      es.forEach(e=>{
+        if(e.intersectionRatio >= inRatio) onEnter();
+        else onLeave();
+      });
+    },{threshold:[0,.05,.15,.3,.5,.6,.85]});
+    io.observe(el);
+  };
+  watch(document.getElementById('mgrid'), 0.6,
+    ()=>{ if(!chartsBuilt) setTimeout(buildCharts, 260); else growCharts(); },   // 进入：建图或重播生长
+    ()=>resetCharts());                                                          // 离开：转静态终态
+  watch(document.getElementById('console'), 0.3,
+    ()=>{ if(!consoleBox.started) consoleBox.start(); },                         // 进入：打字或重播
+    ()=>consoleBox.reset());                                                     // 离开：回 standby
+}
+
+/* 复位改由上方 io 的“离开视口”分支统一承担（见该处注释），
+   此处不再单独观察 header，避免复位与启动发生竞态。 */
+
+if(NOMOTION){
   document.querySelectorAll('.rv').forEach(el=>el.classList.add('in'));
-  setTimeout(buildCharts, 400);
+  document.querySelectorAll('.kpi,.fcard,.rcard').forEach(c=>c.classList.add('anim'));
+  document.querySelectorAll('.hl').forEach(h=>h.classList.add('in'));
+  document.querySelectorAll('[data-v]').forEach(el=>{
+    el.textContent = parseFloat(el.dataset.v).toFixed(parseInt(el.dataset.d));
+  });
+  document.querySelectorAll('.bar i').forEach(el=>{ el.style.width = el.dataset.w + '%'; });
+  revealRows();
+  setTimeout(()=>{buildCharts();}, 400);
 } else {
   document.querySelectorAll('.rv').forEach(el=>io.observe(el));
 }
 
-/* 保底：3 秒后无条件写入最终值，避免动画异常时显示中间值 */
+/* D2 兜底：写入尚未落到终值的元素，避免动画异常时停在中间态。
+   注意：控制台/大图属于“进入视口才播、离开即复位”的可重播元素，
+   若无条件兜底会把它们强行写满，破坏复位后重播的演示节奏，
+   故仅在“区块已进入视口却仍未启动”时才补齐。 */
 setTimeout(()=>{
   document.querySelectorAll('[data-v]').forEach(el=>{
     el.textContent = parseFloat(el.dataset.v).toFixed(parseInt(el.dataset.d));
   });
-  document.querySelectorAll('.bar i').forEach(el=>{
-    el.style.width = el.dataset.w + '%';
-  });
-}, 3000);
+  document.querySelectorAll('.bar i').forEach(el=>{ el.style.width = el.dataset.w + '%'; });
+  document.querySelectorAll('.rv').forEach(el=>el.classList.add('in'));
+  document.querySelectorAll('.kpi,.fcard,.rcard').forEach(c=>c.classList.add('anim'));
+  document.querySelectorAll('.hl').forEach(h=>h.classList.add('in'));
+  revealRows();
+  if(!chartsBuilt){ buildCharts(); }
+  /* 控制台：仅在从未启动过的情况下补齐终值 */
+  if(!consoleBox.started) consoleBox.finish();
+}, 5000);
 
-window.addEventListener('resize',()=>charts.forEach(c=>c.resize()));
-setTimeout(()=>charts.forEach(c=>c.resize()), 500);
+/* D3 修复：Loss 曲线此前未纳入 resize 数组，窗口变化时不会重排 */
+const resizeAll = ()=>{
+  charts.forEach(c=>c.resize());
+  if(lossChart) lossChart.resize();
+};
+window.addEventListener('resize', resizeAll);
+setTimeout(resizeAll, 500);
 </script>
 </body>
 </html>
