@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "铜价预测决策面板 · 高层架构",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [1380, 820],
+    "views": [
+      {
+        "id": "runtime-path",
+        "label": "运行主链路",
+        "focus": ["operator", "demo-entry", "exe", "orchestrator", "renderer", "browser"],
+        "note": "从演示入口进入打包程序，生成离线可交互预测面板。"
+      },
+      {
+        "id": "modeling-path",
+        "label": "建模与数据",
+        "focus": ["workbook", "cache", "trainer", "lstm", "garch", "orchestrator"],
+        "note": "查看数据源、缓存快路径与重训练建模链路。"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "operator",
+      "type": "external",
+      "label": "演示者 / 用户",
+      "sublabel": "运行脚本或双击 EXE",
+      "pos": [36, 360],
+      "size": [170, 76]
+    },
+    {
+      "id": "demo-entry",
+      "type": "frontend",
+      "label": "run_demo.py",
+      "sublabel": "参数透传与演示编排",
+      "pos": [236, 360],
+      "size": [170, 76]
+    },
+    {
+      "id": "exe",
+      "type": "backend",
+      "label": "CopperPriceForecast.exe",
+      "sublabel": "PyInstaller 独立分发包",
+      "pos": [436, 360],
+      "size": [190, 76]
+    },
+    {
+      "id": "orchestrator",
+      "type": "backend",
+      "label": "copper_lstm_garch.py",
+      "sublabel": "缓存 / 训练 / 预测 / 渲染编排",
+      "pos": [656, 360],
+      "size": [200, 76]
+    },
+    {
+      "id": "renderer",
+      "type": "backend",
+      "label": "Dashboard 渲染器",
+      "sublabel": "template.html + ECharts",
+      "pos": [886, 360],
+      "size": [190, 76]
+    },
+    {
+      "id": "browser",
+      "type": "frontend",
+      "label": "本地浏览器面板",
+      "sublabel": "output/copper_dashboard.html",
+      "pos": [1106, 360],
+      "size": [190, 76]
+    },
+    {
+      "id": "workbook",
+      "type": "external",
+      "label": "历史价_全年完善版.xlsx",
+      "sublabel": "2024 全年 · 5 个地区工作表",
+      "pos": [430, 128],
+      "size": [210, 76]
+    },
+    {
+      "id": "cache",
+      "type": "database",
+      "label": "forecast_cache.json",
+      "sublabel": "默认演示的缓存结果",
+      "pos": [430, 598],
+      "size": [210, 76]
+    },
+    {
+      "id": "trainer",
+      "type": "backend",
+      "label": "trainer.py",
+      "sublabel": "--retrain 时动态加载",
+      "pos": [686, 128],
+      "size": [180, 76]
+    },
+    {
+      "id": "lstm",
+      "type": "backend",
+      "label": "LSTM 条件均值",
+      "sublabel": "2 层 · hidden=64 · AR 跳连",
+      "pos": [906, 128],
+      "size": [190, 76]
+    },
+    {
+      "id": "garch",
+      "type": "backend",
+      "label": "GARCH(1,1) 条件方差",
+      "sublabel": "残差拟合 · 多步波动率递推",
+      "pos": [1130, 128],
+      "size": [190, 76]
+    }
+  ],
+  "connections": [
+    { "id": "operator-to-demo", "from": "operator", "to": "demo-entry", "label": "运行 / 参数", "labelDy": -32, "variant": "emphasis" },
+    { "id": "demo-to-exe", "from": "demo-entry", "to": "exe", "label": "调用 EXE", "labelDy": -32 },
+    { "id": "exe-to-orchestrator", "from": "exe", "to": "orchestrator", "label": "启动预测引擎", "labelDy": -32, "variant": "emphasis" },
+    { "id": "orchestrator-to-renderer", "from": "orchestrator", "to": "renderer", "label": "预测结果 + 指标", "labelDy": -32 },
+    { "id": "renderer-to-browser", "from": "renderer", "to": "browser", "label": "写出 HTML", "labelDy": -32, "variant": "emphasis" },
+    { "id": "workbook-to-orchestrator", "from": "workbook", "to": "orchestrator", "label": "读取日频均价", "fromSide": "bottom", "toSide": "top" },
+    { "id": "cache-to-orchestrator", "from": "cache", "to": "orchestrator", "label": "默认快路径", "fromSide": "top", "toSide": "bottom", "variant": "dashed" },
+    { "id": "orchestrator-to-trainer", "from": "orchestrator", "to": "trainer", "label": "--retrain 动态加载", "fromSide": "top", "toSide": "bottom", "labelAt": [630, 260], "variant": "dashed" },
+    { "id": "trainer-to-lstm", "from": "trainer", "to": "lstm", "label": "训练条件均值", "labelDy": -32, "variant": "emphasis" },
+    { "id": "lstm-to-garch", "from": "lstm", "to": "garch", "label": "LSTM 残差", "labelDy": -32 },
+    { "id": "garch-to-orchestrator", "from": "garch", "to": "orchestrator", "label": "波动率与 95% 区间", "fromSide": "bottom", "toSide": "top", "via": [[1225, 260], [756, 260]], "labelAt": [1030, 280], "variant": "emphasis" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "运行时边界",
+      "items": ["默认读取缓存，演示无需加载 PyTorch", "--retrain 才动态加载训练依赖"]
+    },
+    {
+      "dot": "amber",
+      "title": "交付形态",
+      "items": ["ECharts 内联，HTML 可离线打开", "EXE 与源码入口共用同一预测编排"]
+    }
+  ]
+}
